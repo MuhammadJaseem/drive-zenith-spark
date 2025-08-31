@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ interface VehicleCardProps {
 
 export default function VehicleCard({ vehicle, rating, unavailableDates, blockedDates }: VehicleCardProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const navigate = useNavigate();
   
   const formatPrice = (price: number) => {
     // Assuming price is in cents, convert to dollars
@@ -188,7 +190,11 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
           </div>
           <div className="text-xs text-muted-foreground">per day</div>
         </div>
-        <Button variant="accent" className="px-6">
+        <Button 
+          variant="accent" 
+          className="px-6"
+          onClick={() => navigate(`/vehicle/${vehicle.vehicleId}`)}
+        >
           View Details
         </Button>
       </CardFooter>
