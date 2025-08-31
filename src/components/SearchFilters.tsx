@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, MapPin, Calendar, DollarSign, Filter } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Search, MapPin, Calendar, DollarSign, Filter, X } from 'lucide-react';
 import { VehicleFilters } from '@/hooks/useVehicles';
+import PriceRangeDialog from './PriceRangeDialog';
+import YearPickerDialog from './YearPickerDialog';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SearchFiltersProps {
   onFiltersChange: (filters: VehicleFilters) => void;
@@ -26,6 +30,47 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
   const handleReset = () => {
     setFilters({});
     onFiltersChange({});
+  };
+
+  const handlePriceRangeApply = (min: number, max: number) => {
+    const newFilters = { ...filters, minPrice: min, maxPrice: max };
+    setFilters(newFilters);
+    onFiltersChange(newFilters);
+  };
+
+  const handleYearRangeApply = (minYear: number, maxYear: number) => {
+    const newFilters = { ...filters, minYear, maxYear };
+    setFilters(newFilters);
+    onFiltersChange(newFilters);
+  };
+
+  const removeFilter = (key: keyof VehicleFilters) => {
+    const newFilters = { ...filters };
+    delete newFilters[key];
+    setFilters(newFilters);
+    onFiltersChange(newFilters);
+  };
+
+  const getActiveFilters = () => {
+    const active = [];
+    if (filters.city) active.push({ key: 'city' as keyof VehicleFilters, label: `City: ${filters.city}` });
+    if (filters.make) active.push({ key: 'make' as keyof VehicleFilters, label: `Make: ${filters.make}` });
+    if (filters.model) active.push({ key: 'model' as keyof VehicleFilters, label: `Model: ${filters.model}` });
+    if (filters.minPrice || filters.maxPrice) {
+      active.push({ 
+        key: 'price' as keyof VehicleFilters, 
+        label: `Price: $${filters.minPrice || 0} - $${filters.maxPrice || '∞'}`,
+        clearKeys: ['minPrice', 'maxPrice'] as (keyof VehicleFilters)[]
+      });
+    }
+    if (filters.minYear || filters.maxYear) {
+      active.push({ 
+        key: 'year' as keyof VehicleFilters, 
+        label: `Year: ${filters.minYear || 'Any'} - ${filters.maxYear || 'Any'}`,
+        clearKeys: ['minYear', 'maxYear'] as (keyof VehicleFilters)[]
+      });
+    }
+    return active;
   };
 
   return (
@@ -90,58 +135,105 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
             </Button>
           </div>
 
+          {/* Active Filters */}
+          <AnimatePresence>
+            {getActiveFilters().length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-wrap gap-2"
+              >
+                {getActiveFilters().map((filter, index) => (
+                  <motion.div
+                    key={filter.key}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
+                  >
+                    <Badge 
+                      variant="secondary" 
+                      className="pr-1 py-1 cursor-pointer hover:bg-destructive/10 transition-colors"
+                      onClick={() => {
+                        if (filter.clearKeys) {
+                          const newFilters = { ...filters };
+                          filter.clearKeys.forEach(key => delete newFilters[key]);
+                          setFilters(newFilters);
+                          onFiltersChange(newFilters);
+                        } else {
+                          removeFilter(filter.key);
+                        }
+                      }}
+                    >
+                      <span className="mr-1">{filter.label}</span>
+                      <X className="w-3 h-3" />
+                    </Badge>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Advanced Filters */}
-          {showAdvanced && (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4 border-t border-border">
-              <Input
-                placeholder="Make (e.g., Toyota)"
-                value={filters.make || ''}
-                onChange={(e) => handleFilterChange('make', e.target.value)}
-              />
-              
-              <Input
-                placeholder="Model"
-                value={filters.model || ''}
-                onChange={(e) => handleFilterChange('model', e.target.value)}
-              />
-              
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <AnimatePresence>
+            {showAdvanced && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-border"
+              >
                 <Input
-                  type="number"
-                  placeholder="Min Price"
-                  value={filters.minPrice || ''}
-                  onChange={(e) => handleFilterChange('minPrice', Number(e.target.value))}
-                  className="pl-10"
+                  placeholder="Make (e.g., Toyota)"
+                  value={filters.make || ''}
+                  onChange={(e) => handleFilterChange('make', e.target.value)}
                 />
-              </div>
-              
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                
                 <Input
-                  type="number"
-                  placeholder="Max Price"
-                  value={filters.maxPrice || ''}
-                  onChange={(e) => handleFilterChange('maxPrice', Number(e.target.value))}
-                  className="pl-10"
+                  placeholder="Model"
+                  value={filters.model || ''}
+                  onChange={(e) => handleFilterChange('model', e.target.value)}
                 />
-              </div>
-              
-              <Input
-                type="number"
-                placeholder="Min Year"
-                value={filters.minYear || ''}
-                onChange={(e) => handleFilterChange('minYear', Number(e.target.value))}
-              />
-              
-              <Input
-                type="number"
-                placeholder="Max Year"
-                value={filters.maxYear || ''}
-                onChange={(e) => handleFilterChange('maxYear', Number(e.target.value))}
-              />
-            </div>
-          )}
+                
+                <PriceRangeDialog
+                  minPrice={filters.minPrice}
+                  maxPrice={filters.maxPrice}
+                  onApply={handlePriceRangeApply}
+                >
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                  >
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    {filters.minPrice || filters.maxPrice 
+                      ? `$${filters.minPrice || 0} - $${filters.maxPrice || '∞'}` 
+                      : 'Price Range'
+                    }
+                  </Button>
+                </PriceRangeDialog>
+                
+                <YearPickerDialog
+                  selectedMinYear={filters.minYear}
+                  selectedMaxYear={filters.maxYear}
+                  onApply={handleYearRangeApply}
+                >
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {filters.minYear || filters.maxYear 
+                      ? `${filters.minYear || 'Any'} - ${filters.maxYear || 'Any'}` 
+                      : 'Year Range'
+                    }
+                  </Button>
+                </YearPickerDialog>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Reset Button */}
           {Object.keys(filters).some(key => filters[key as keyof VehicleFilters]) && (
