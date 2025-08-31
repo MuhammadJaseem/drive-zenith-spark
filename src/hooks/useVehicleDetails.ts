@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiService } from '../services/api';
 
 interface VehicleDetails {
   vehicleId: number;
@@ -31,13 +32,7 @@ interface ApiResponse {
 }
 
 const fetchVehicleDetails = async (vehicleId: number): Promise<VehicleDetails> => {
-  const response = await fetch(`https://zfleetdev.azurewebsites.net/api/Vehicle/${vehicleId}`);
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch vehicle details');
-  }
-
-  const data: ApiResponse = await response.json();
+  const data: ApiResponse = await apiService.getVehicleDetails(vehicleId);
 
   if (data.hasError) {
     throw new Error(data.errorMessage || 'Failed to fetch vehicle details');

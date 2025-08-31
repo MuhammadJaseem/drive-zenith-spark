@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiService } from '../services/api';
 
 interface Vehicle {
   vehicleId: number;
@@ -52,23 +53,7 @@ interface VehicleFilters {
 }
 
 const fetchVehicles = async (filters: VehicleFilters = {}): Promise<VehicleResponse[]> => {
-  const params = new URLSearchParams();
-  
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      params.append(key, value.toString());
-    }
-  });
-
-  const url = `https://zfleetdev.azurewebsites.net/GetPubliclyavailableVehicles${params.toString() ? `?${params.toString()}` : ''}`;
-  
-  const response = await fetch(url);
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch vehicles');
-  }
-  
-  const data: ApiResponse = await response.json();
+  const data: ApiResponse = await apiService.getVehicles(filters);
   return data.result || [];
 };
 

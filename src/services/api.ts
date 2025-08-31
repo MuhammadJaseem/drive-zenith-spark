@@ -1,39 +1,138 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://zfleetdev.azurewebsites.net';
 
+interface RequestConfig extends RequestInit {
+  skipAuth?: boolean;
+}
+
 class ApiService {
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private isRefreshing = false;
+  private refreshPromise: Promise<any> | null = null;
+
+  // HTTP Interceptor for adding auth headers
+  private async interceptRequest(config: RequestConfig): Promise<RequestConfig> {
+    // Skip auth for certain endpoints
+    if (config.skipAuth) {
+      return config;
+    }
+
     const authData = this.getStoredAuthData();
     const token = authData?.token;
 
-    const url = `${API_BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
-      },
-    });
+    if (token) {
+      config.headers = {
+        ...config.headers,
+        'Authorization': `Bearer ${token}`,
+      };
+    }
 
+    return config;
+  }
+
+  // HTTP Response Interceptor for handling auth errors
+  private async interceptResponse<T>(response: Response, originalRequest: RequestConfig): Promise<T> {
     if (!response.ok) {
       if (response.status === 401) {
-        // Token expired, clear auth data
+        // Token expired, try to refresh
+        const newToken = await this.handleTokenRefresh();
+        if (newToken) {
+          // Retry the original request with new token
+          const retryConfig = {
+            ...originalRequest,
+            headers: {
+              ...originalRequest.headers,
+              'Authorization': `Bearer ${newToken}`,
+            },
+          };
+
+          const retryResponse = await fetch(response.url, retryConfig);
+          if (retryResponse.ok) {
+            return retryResponse.json();
+          }
+        }
+
+        // If refresh failed or no new token, clear auth data
         this.clearAuthData();
         throw new Error('Authentication expired');
       }
+
       throw new Error(`API request failed: ${response.status}`);
     }
 
     return response.json();
   }
 
-  // Authentication Methods
+  // Handle token refresh
+  private async handleTokenRefresh(): Promise<string | null> {
+    if (this.isRefreshing) {
+      // If already refreshing, wait for the existing promise
+      return this.refreshPromise;
+    }
+
+    this.isRefreshing = true;
+
+    try {
+      const authData = this.getStoredAuthData();
+      if (!authData?.refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      this.refreshPromise = this.refreshToken({
+        refreshToken: authData.refreshToken,
+        token: authData.token,
+      });
+
+      const refreshResponse = await this.refreshPromise;
+
+      if (refreshResponse?.token) {
+        // Update stored auth data with new token
+        const updatedAuthData = {
+          ...authData,
+          token: refreshResponse.token,
+          refreshToken: refreshResponse.refreshToken || authData.refreshToken,
+        };
+
+        this.storeAuthData(updatedAuthData);
+        return refreshResponse.token;
+      }
+
+      throw new Error('Token refresh failed');
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      this.clearAuthData();
+      return null;
+    } finally {
+      this.isRefreshing = false;
+      this.refreshPromise = null;
+    }
+  }
+
+  // Main request method with interceptors
+  private async request<T>(
+    endpoint: string,
+    config: RequestConfig = {}
+  ): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+
+    // Apply request interceptor
+    const interceptedConfig = await this.interceptRequest(config);
+
+    const response = await fetch(url, {
+      ...interceptedConfig,
+      headers: {
+        'Content-Type': 'application/json',
+        ...interceptedConfig.headers,
+      },
+    });
+
+    // Apply response interceptor
+    return this.interceptResponse<T>(response, interceptedConfig);
+  }
+
+  // Authentication Methods (skip auth for these)
   async authorize(email: string) {
     return this.request(
-      `/Login/Authenticate?provider=google&email=${encodeURIComponent(email)}`
+      `/Login/Authenticate?provider=google&email=${encodeURIComponent(email)}`,
+      { skipAuth: true }
     );
   }
 
@@ -41,11 +140,12 @@ class ApiService {
     return this.request("/api/Login/RefreshToken", {
       method: "POST",
       body: JSON.stringify(refreshTokenRequest),
+      skipAuth: true, // Don't add auth header for refresh token request
     });
   }
 
-  // Vehicle API Methods
-  async getVehicles(filters: any = {}) {
+  // Vehicle API Methods (will automatically use interceptor for auth)
+  async getVehicles(filters: any = {}): Promise<{ result: any[] }> {
     const params = new URLSearchParams();
 
     Object.entries(filters).forEach(([key, value]) => {
@@ -58,7 +158,7 @@ class ApiService {
     return this.request(url);
   }
 
-  async getVehicleDetails(vehicleId: number) {
+  async getVehicleDetails(vehicleId: number): Promise<{ result: any; hasError: boolean; errorMessage: string; errorCode: number }> {
     return this.request(`/api/Vehicle/${vehicleId}`);
   }
 
