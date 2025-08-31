@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, MapPin, Calendar, DollarSign, Filter, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, MapPin, Calendar, DollarSign, Filter, X, Car } from 'lucide-react';
 import { VehicleFilters } from '@/hooks/useVehicles';
 import PriceRangeDialog from './PriceRangeDialog';
 import YearPickerDialog from './YearPickerDialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 interface SearchFiltersProps {
   onFiltersChange: (filters: VehicleFilters) => void;
@@ -17,10 +19,19 @@ interface SearchFiltersProps {
 export default function SearchFilters({ onFiltersChange, isLoading }: SearchFiltersProps) {
   const [filters, setFilters] = useState<VehicleFilters>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [makes, setMakes] = useState<string[]>([]);
+  const [models, setModels] = useState<string[]>([]);
+  const [makesLoading, setMakesLoading] = useState(false);
+  const [modelsLoading, setModelsLoading] = useState(false);
 
   const handleFilterChange = (key: keyof VehicleFilters, value: string | number) => {
     const newFilters = { ...filters, [key]: value || undefined };
     setFilters(newFilters);
+    
+    // Auto-apply filter changes for make/model for immediate results
+    if (key === 'make' || key === 'model') {
+      onFiltersChange(newFilters);
+    }
   };
 
   const handleSearch = () => {
@@ -40,6 +51,60 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
 
   const handleYearRangeApply = (minYear: number, maxYear: number) => {
     const newFilters = { ...filters, minYear, maxYear };
+    setFilters(newFilters);
+    onFiltersChange(newFilters);
+  };
+
+  // Fetch makes on component mount
+  useEffect(() => {
+    const fetchMakes = async () => {
+      setMakesLoading(true);
+      try {
+        const response = await axios.get('https://zfleetdev.azurewebsites.net/api/makemodel/makes');
+        setMakes(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch makes:', error);
+      } finally {
+        setMakesLoading(false);
+      }
+    };
+
+    fetchMakes();
+  }, []);
+
+  // Fetch models when make is selected
+  useEffect(() => {
+    const fetchModels = async () => {
+      if (!filters.make) {
+        setModels([]);
+        return;
+      }
+
+      setModelsLoading(true);
+      try {
+        const response = await axios.get(
+          `https://zfleetdev.azurewebsites.net/api/makemodel/makes/models?VehicleMake=${filters.make}`
+        );
+        setModels(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch models:', error);
+        setModels([]);
+      } finally {
+        setModelsLoading(false);
+      }
+    };
+
+    fetchModels();
+  }, [filters.make]);
+
+  const handleMakeChange = (make: string) => {
+    const newFilters = { ...filters, make, model: undefined }; // Clear model when make changes
+    setFilters(newFilters);
+    onFiltersChange(newFilters);
+  };
+
+  const handleModelChange = (model: string) => {
+    const newFilters = { ...filters, model };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
@@ -186,17 +251,65 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
                 transition={{ duration: 0.3 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-border"
               >
-                <Input
-                  placeholder="Make (e.g., Toyota)"
-                  value={filters.make || ''}
-                  onChange={(e) => handleFilterChange('make', e.target.value)}
-                />
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Select 
+                    value={filters.make || ''} 
+                    onValueChange={handleMakeChange}
+                    disabled={makesLoading}
+                  >
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center">
+                        <Car className="w-4 h-4 mr-2 text-muted-foreground" />
+                        <SelectValue placeholder={makesLoading ? "Loading makes..." : "Select Make"} />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {makes.map((make) => (
+                        <SelectItem key={make} value={make}>
+                          {make}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </motion.div>
                 
-                <Input
-                  placeholder="Model"
-                  value={filters.model || ''}
-                  onChange={(e) => handleFilterChange('model', e.target.value)}
-                />
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.1 }}
+                >
+                  <Select 
+                    value={filters.model || ''} 
+                    onValueChange={handleModelChange}
+                    disabled={!filters.make || modelsLoading}
+                  >
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center">
+                        <Car className="w-4 h-4 mr-2 text-muted-foreground" />
+                        <SelectValue 
+                          placeholder={
+                            !filters.make 
+                              ? "Select make first" 
+                              : modelsLoading 
+                                ? "Loading models..." 
+                                : "Select Model"
+                          } 
+                        />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {models.map((model) => (
+                        <SelectItem key={model} value={model}>
+                          {model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </motion.div>
                 
                 <PriceRangeDialog
                   minPrice={filters.minPrice}
