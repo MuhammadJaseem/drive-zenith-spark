@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, Calendar, Users, Heart } from 'lucide-react';
+import { Star, MapPin, Calendar, Heart, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Vehicle {
@@ -173,10 +173,17 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
               <Calendar className="w-3 h-3" />
               <span>{vehicle.odometer.toLocaleString()} km</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Users className="w-3 h-3" />
-              <span>{vehicle.paymentMethod}</span>
-            </div>
+            {vehicle.paymentMethod && vehicle.paymentMethod.trim() !== '' ? (
+              <div className="flex items-center gap-1">
+                <CreditCard className="w-3 h-3" />
+                <span>{vehicle.paymentMethod}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <CreditCard className="w-3 h-3" />
+                <span>Cash</span>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
