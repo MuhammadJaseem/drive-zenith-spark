@@ -82,7 +82,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
           <div className="aspect-video overflow-hidden">
             {vehicle.resourcePath ? (
               <motion.img
-                src={vehicle.resourcePath}
+                src={vehicle.images.split(';')[0]}
                 alt={`${vehicle.make} ${vehicle.model}`}
                 className="w-full h-full object-cover"
                 whileHover={{ scale: 1.05 }}
@@ -121,7 +121,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
 
         {/* Save Button */}
         <motion.button
-          className="absolute top-3 right-12 w-8 h-8 bg-background/90 backdrop-blur-sm rounded-full flex items-center justify-center"
+          className="absolute top-3 right-12 w-8 h-8 bg-background/90 backdrop-blur-sm rounded-full items-center justify-center hidden"
           onClick={(e) => {
             e.stopPropagation();
             handleSaveToggle();
