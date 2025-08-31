@@ -29,7 +29,7 @@ interface Rating {
 
 interface VehicleResponse {
   vehicle: Vehicle;
-  rating: Rating;
+  rating: Rating | null;
   unavailableDates: string[];
   blockedDates: Array<{ startDate: string; endDate: string }>;
 }

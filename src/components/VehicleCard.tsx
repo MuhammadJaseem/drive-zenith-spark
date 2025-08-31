@@ -32,7 +32,7 @@ interface Rating {
 
 interface VehicleCardProps {
   vehicle: Vehicle;
-  rating: Rating;
+  rating: Rating | null;
   unavailableDates: string[];
   blockedDates: Array<{ startDate: string; endDate: string }>;
 }
@@ -90,11 +90,13 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
         </div>
 
         {/* Rating */}
-        <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
-          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-          <span className="text-xs font-medium">{rating.averageRating.toFixed(1)}</span>
-          <span className="text-xs text-muted-foreground">({rating.totalReviews})</span>
-        </div>
+        {rating && rating.averageRating !== null && (
+          <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs font-medium">{rating.averageRating.toFixed(1)}</span>
+            <span className="text-xs text-muted-foreground">({rating.totalReviews})</span>
+          </div>
+        )}
       </div>
 
       <CardContent className="p-4">
