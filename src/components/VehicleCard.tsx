@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, MapPin, Calendar, Heart, CreditCard, Gauge } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import AuthPromptModal from './AuthPromptModal';
 
 interface Vehicle {
   vehicleId: number;
@@ -41,7 +43,9 @@ interface VehicleCardProps {
 
 export default function VehicleCard({ vehicle, rating, unavailableDates, blockedDates }: VehicleCardProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   
   const formatPrice = (price: number) => {
     // Assuming price is in cents, convert to dollars
@@ -66,6 +70,14 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
     ];
     const index = vehicle.vehicleId % colors.length;
     return colors[index];
+  };
+
+  const handleViewDetails = () => {
+    if (isAuthenticated) {
+      navigate(`/vehicle/${vehicle.vehicleId}`);
+    } else {
+      setShowAuthModal(true);
+    }
   };
 
   const handleSaveToggle = () => {
@@ -193,12 +205,18 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
         <Button 
           variant="accent" 
           className="px-6"
-          onClick={() => navigate(`/vehicle/${vehicle.vehicleId}`)}
+          onClick={handleViewDetails}
         >
           View Details
         </Button>
       </CardFooter>
     </Card>
+
+    <AuthPromptModal
+      isOpen={showAuthModal}
+      onClose={() => setShowAuthModal(false)}
+      vehicleId={vehicle.vehicleId}
+    />
     </motion.div>
   );
 }
