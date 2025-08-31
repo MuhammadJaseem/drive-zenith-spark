@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, MapPin, Calendar, DollarSign, Filter, X, Car } from 'lucide-react';
 import { VehicleFilters } from '@/hooks/useVehicles';
+import MakePickerDialog from './MakePickerDialog';
+import ModelPickerDialog from './ModelPickerDialog';
 import PriceRangeDialog from './PriceRangeDialog';
 import YearPickerDialog from './YearPickerDialog';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,8 +20,8 @@ interface SearchFiltersProps {
 export default function SearchFilters({ onFiltersChange, isLoading }: SearchFiltersProps) {
   const [filters, setFilters] = useState<VehicleFilters>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [makes, setMakes] = useState<string[]>([]);
-  const [models, setModels] = useState<string[]>([]);
+  const [makes, setMakes] = useState<any[]>([]);
+  const [models, setModels] = useState<any[]>([]);
   const [makesLoading, setMakesLoading] = useState(false);
   const [modelsLoading, setModelsLoading] = useState(false);
 
@@ -97,14 +98,14 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
     fetchModels();
   }, [filters.make]);
 
-  const handleMakeChange = (make: string) => {
-    const newFilters = { ...filters, make, model: undefined }; // Clear model when make changes
+  const handleMakeChange = (makeName: string) => {
+    const newFilters = { ...filters, make: makeName, model: undefined }; // Clear model when make changes
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
 
-  const handleModelChange = (model: string) => {
-    const newFilters = { ...filters, model };
+  const handleModelChange = (modelName: string) => {
+    const newFilters = { ...filters, model: modelName };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
@@ -251,65 +252,37 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
                 transition={{ duration: 0.3 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-border"
               >
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
+                <MakePickerDialog
+                  makes={makes}
+                  selectedMake={filters.make}
+                  onApply={handleMakeChange}
+                  isLoading={makesLoading}
                 >
-                  <Select 
-                    value={filters.make || ''} 
-                    onValueChange={handleMakeChange}
-                    disabled={makesLoading}
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
                   >
-                    <SelectTrigger className="w-full">
-                      <div className="flex items-center">
-                        <Car className="w-4 h-4 mr-2 text-muted-foreground" />
-                        <SelectValue placeholder={makesLoading ? "Loading makes..." : "Select Make"} />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {makes.map((make) => (
-                        <SelectItem key={make} value={make}>
-                          {make}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </motion.div>
+                    <Car className="w-4 h-4 mr-2" />
+                    {filters.make ? filters.make : 'Select Make'}
+                  </Button>
+                </MakePickerDialog>
                 
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, delay: 0.1 }}
+                <ModelPickerDialog
+                  models={models}
+                  selectedModel={filters.model}
+                  selectedMake={filters.make}
+                  onApply={handleModelChange}
+                  isLoading={modelsLoading}
                 >
-                  <Select 
-                    value={filters.model || ''} 
-                    onValueChange={handleModelChange}
-                    disabled={!filters.make || modelsLoading}
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    disabled={!filters.make}
                   >
-                    <SelectTrigger className="w-full">
-                      <div className="flex items-center">
-                        <Car className="w-4 h-4 mr-2 text-muted-foreground" />
-                        <SelectValue 
-                          placeholder={
-                            !filters.make 
-                              ? "Select make first" 
-                              : modelsLoading 
-                                ? "Loading models..." 
-                                : "Select Model"
-                          } 
-                        />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {models.map((model) => (
-                        <SelectItem key={model} value={model}>
-                          {model}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </motion.div>
+                    <Car className="w-4 h-4 mr-2" />
+                    {filters.model ? filters.model : 'Select Model'}
+                  </Button>
+                </ModelPickerDialog>
                 
                 <PriceRangeDialog
                   minPrice={filters.minPrice}
