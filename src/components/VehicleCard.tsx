@@ -50,7 +50,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
     return new Date(dateString).getFullYear();
   };
 
-  const isAvailable = !vehicle.isRented && unavailableDates.length === 0 && blockedDates.length === 0;
+  const isAvailable = true; // Vehicles shown from backend are always available
 
   // Generate unique placeholder based on vehicle data
   const generatePlaceholderGradient = () => {
@@ -107,16 +107,9 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-2">
-          {isAvailable && (
-            <Badge variant="success" className="text-xs font-medium">
-              Available
-            </Badge>
-          )}
-          {!isAvailable && (
-            <Badge variant="destructive" className="text-xs font-medium">
-              Unavailable
-            </Badge>
-          )}
+          <Badge variant="success" className="text-xs font-medium">
+            Available
+          </Badge>
         </div>
 
         {/* Save Button */}
