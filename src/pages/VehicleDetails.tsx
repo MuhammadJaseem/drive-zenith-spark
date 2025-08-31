@@ -128,16 +128,17 @@ const VehicleDetails = () => {
         </motion.div>
 
         {/* Main Content - Modern Horizontal Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Side - Image Gallery (2/3 width - larger) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          {/* Left Side - Image Gallery (2/3 width - sticky) */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:col-span-2 space-y-4"
+            className="lg:col-span-2"
           >
-            {/* Main Image Display */}
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-2xl bg-white">
+            <div className="lg:sticky lg:top-8 space-y-6">
+              {/* Main Image Display */}
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-white border border-gray-200">
               {images.length > 0 ? (
                 <img
                   src={images[currentImageIndex]}
@@ -161,13 +162,13 @@ const VehicleDetails = () => {
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
@@ -176,10 +177,11 @@ const VehicleDetails = () => {
 
               {/* Availability Badge */}
               <div className="absolute top-4 right-4">
-                <Badge variant={vehicle.isavailable ? "success" : "destructive"} className="text-sm px-4 py-2 shadow-lg">
+                <Badge variant={vehicle.isavailable ? "success" : "destructive"} className="text-sm px-4 py-2">
                   {vehicle.isavailable ? "Available" : "Unavailable"}
                 </Badge>
               </div>
+            </div>
             </div>
           </motion.div>
 
@@ -191,7 +193,7 @@ const VehicleDetails = () => {
             className="lg:col-span-1 space-y-4"
           >
             {/* Title and Price Card */}
-            <Card className="bg-white shadow-xl border-0 overflow-hidden">
+            <Card className="bg-white border border-gray-200 overflow-hidden">
               <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-white">
                 <h1 className="text-2xl font-bold mb-2">
                   {vehicle.make} {vehicle.model}
@@ -202,7 +204,7 @@ const VehicleDetails = () => {
                 </div>
               </div>
               <CardContent className="p-6">
-                <Button variant="accent" className="w-full py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all" size="lg">
+                <Button variant="accent" className="w-full py-4 text-lg font-semibold transition-all" size="lg">
                   Book Now
                 </Button>
               </CardContent>
@@ -210,7 +212,7 @@ const VehicleDetails = () => {
 
             {/* Key Features Grid */}
             <div className="grid grid-cols-1 gap-3">
-              <div className="bg-white p-4 rounded-xl shadow-lg border-0">
+              <div className="bg-white p-4 rounded-xl border border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-blue-600" />
@@ -222,7 +224,7 @@ const VehicleDetails = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl shadow-lg border-0">
+              <div className="bg-white p-4 rounded-xl border border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                     <Gauge className="w-5 h-5 text-green-600" />
@@ -234,7 +236,7 @@ const VehicleDetails = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl shadow-lg border-0">
+              <div className="bg-white p-4 rounded-xl border border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-purple-600" />
@@ -246,7 +248,7 @@ const VehicleDetails = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl shadow-lg border-0">
+              <div className="bg-white p-4 rounded-xl border border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                     <CreditCard className="w-5 h-5 text-orange-600" />
@@ -260,7 +262,7 @@ const VehicleDetails = () => {
             </div>
 
             {/* Quick Details Card */}
-            <Card className="bg-white shadow-lg border-0">
+            <Card className="bg-white border border-gray-200">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Info className="w-5 h-5 text-primary" />
@@ -288,7 +290,7 @@ const VehicleDetails = () => {
             </Card>
 
             {/* Rental Terms Card */}
-            <Card className="bg-white shadow-lg border-0">
+            <Card className="bg-white border border-gray-200">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Shield className="w-5 h-5 text-primary" />
@@ -328,7 +330,7 @@ const VehicleDetails = () => {
 
             {/* Notes Section - Only if comments exist */}
             {vehicle.comments && (
-              <Card className="bg-white shadow-lg border-0">
+              <Card className="bg-white border border-gray-200">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <FileText className="w-5 h-5 text-primary" />
