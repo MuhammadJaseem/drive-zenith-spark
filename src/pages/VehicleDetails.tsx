@@ -160,55 +160,57 @@ const VehicleDetails = () => {
           <div className="lg:col-span-2">
             <Card className="h-full">
               <CardContent className="p-0 h-full">
-                <div className="relative h-full overflow-hidden rounded-lg">
-                  {/* Single Image Display with smooth fade transition */}
-                  {images.length > 0 ? (
-                    <img
-                      key={currentImageIndex} // This forces re-render for smooth transition
-                      src={images[currentImageIndex]}
-                      alt={`${vehicle.make} ${vehicle.model} - Image ${currentImageIndex + 1}`}
-                      className="w-full h-full object-cover transition-opacity duration-300 ease-in-out"
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <Car className="w-20 h-20 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg font-medium">No Image Available</p>
+                <div className="relative h-full overflow-hidden rounded-lg bg-gray-100">
+                  {/* Fixed aspect ratio container for consistent dimensions */}
+                  <div className="absolute inset-0 w-full h-full">
+                    {images.length > 0 ? (
+                      <img
+                        key={currentImageIndex} // This forces re-render for smooth transition
+                        src={images[currentImageIndex]}
+                        alt={`${vehicle.make} ${vehicle.model} - Image ${currentImageIndex + 1}`}
+                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ease-in-out"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center';
+                        }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <Car className="w-20 h-20 mx-auto mb-4 opacity-50" />
+                          <p className="text-lg font-medium">No Image Available</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
-                  {/* Navigation Arrows */}
+                  {/* Navigation Arrows - Fixed positioning */}
                   {images.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
-                        className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl z-10"
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl z-20 backdrop-blur-sm"
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-5 w-5" />
                       </button>
                       <button
                         onClick={nextImage}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl z-10"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl z-20 backdrop-blur-sm"
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-5 w-5" />
                       </button>
                     </>
                   )}
 
-                  {/* Dot Indicators */}
+                  {/* Dot Indicators - Fixed positioning */}
                   {images.length > 1 && (
-                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
                       {images.map((_, index) => (
                         <button
                           key={index}
                           className={cn(
-                            "w-2 h-2 rounded-full transition-all duration-200",
+                            "w-2.5 h-2.5 rounded-full transition-all duration-200",
                             index === currentImageIndex 
-                              ? "bg-white scale-125" 
+                              ? "bg-white scale-125 shadow-lg" 
                               : "bg-white/60 hover:bg-white/80"
                           )}
                           onClick={() => setCurrentImageIndex(index)}
@@ -217,9 +219,9 @@ const VehicleDetails = () => {
                     </div>
                   )}
 
-                  {/* Image Counter */}
+                  {/* Image Counter - Fixed positioning */}
                   {images.length > 1 && (
-                    <div className="absolute top-3 right-3 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium z-10">
+                    <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1.5 rounded-full text-sm font-medium z-20 backdrop-blur-sm">
                       {currentImageIndex + 1} / {images.length}
                     </div>
                   )}
