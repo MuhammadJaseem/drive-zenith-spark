@@ -11,6 +11,8 @@ import PriceRangeDialog from './PriceRangeDialog';
 import YearPickerDialog from './YearPickerDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { useAuth } from '@/contexts/AuthContext';
+import { formatPrice } from '@/lib/utils';
 
 interface SearchFiltersProps {
   onFiltersChange: (filters: VehicleFilters) => void;
@@ -24,6 +26,7 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
   const [models, setModels] = useState<any[]>([]);
   const [makesLoading, setMakesLoading] = useState(false);
   const [modelsLoading, setModelsLoading] = useState(false);
+  const { countryConfig } = useAuth();
 
   const handleFilterChange = (key: keyof VehicleFilters, value: string | number) => {
     const newFilters = { ...filters, [key]: value || undefined };
@@ -125,7 +128,7 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
     if (filters.minPrice || filters.maxPrice) {
       active.push({ 
         key: 'price' as keyof VehicleFilters, 
-        label: `Price: $${filters.minPrice || 0} - $${filters.maxPrice || '∞'}`,
+        label: `Price: ${formatPrice(filters.minPrice || 0, countryConfig?.currencyCode || 'USD')} - ${filters.maxPrice ? formatPrice(filters.maxPrice, countryConfig?.currencyCode || 'USD') : '∞'}`,
         clearKeys: ['minPrice', 'maxPrice'] as (keyof VehicleFilters)[]
       });
     }
@@ -202,25 +205,48 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
           </div>
 
           {/* Active Filters */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {getActiveFilters().length > 0 && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
+                key="active-filters"
+                initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                animate={{
+                  opacity: 1,
+                  height: 'auto',
+                  overflow: 'visible',
+                  transition: {
+                    height: { duration: 0.3, ease: 'easeInOut' },
+                    opacity: { duration: 0.2, delay: 0.1 }
+                  }
+                }}
+                exit={{
+                  opacity: 0,
+                  height: 0,
+                  overflow: 'hidden',
+                  transition: {
+                    height: { duration: 0.3, ease: 'easeInOut' },
+                    opacity: { duration: 0.2 }
+                  }
+                }}
                 className="flex flex-wrap gap-2"
               >
                 {getActiveFilters().map((filter, index) => (
                   <motion.div
                     key={filter.key}
                     initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.2, delay: index * 0.05 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      transition: { duration: 0.2, delay: index * 0.05, ease: 'easeOut' }
+                    }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.8,
+                      transition: { duration: 0.15, ease: 'easeIn' }
+                    }}
                   >
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className="pr-1 py-1 cursor-pointer hover:bg-destructive/10 transition-colors"
                       onClick={() => {
                         if (filter.clearKeys) {
@@ -243,13 +269,29 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
           </AnimatePresence>
 
           {/* Advanced Filters */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {showAdvanced && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
+                key="advanced-filters"
+                initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                animate={{
+                  opacity: 1,
+                  height: 'auto',
+                  overflow: 'visible',
+                  transition: {
+                    height: { duration: 0.4, ease: 'easeInOut' },
+                    opacity: { duration: 0.3, delay: 0.1 }
+                  }
+                }}
+                exit={{
+                  opacity: 0,
+                  height: 0,
+                  overflow: 'hidden',
+                  transition: {
+                    height: { duration: 0.3, ease: 'easeInOut' },
+                    opacity: { duration: 0.2 }
+                  }
+                }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-border"
               >
                 <MakePickerDialog
@@ -295,7 +337,7 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
                   >
                     <DollarSign className="w-4 h-4 mr-2" />
                     {filters.minPrice || filters.maxPrice 
-                      ? `$${filters.minPrice || 0} - $${filters.maxPrice || '∞'}` 
+                      ? `${formatPrice(filters.minPrice || 0, countryConfig?.currencyCode || 'USD')} - ${filters.maxPrice ? formatPrice(filters.maxPrice, countryConfig?.currencyCode || 'USD') : '∞'}` 
                       : 'Price Range'
                     }
                   </Button>

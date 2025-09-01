@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 interface AuthContextType {
   user: User | null;
   customer: any;
+  countryConfig: any;
   loading: boolean;
   isAuthenticated: boolean;
   backendAuth: any;
@@ -37,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [customer, setCustomer] = useState<any>(null);
+  const [countryConfig, setCountryConfig] = useState<any>(null);
   const [backendAuth, setBackendAuth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(!!getStoredToken());
@@ -64,10 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Load stored auth data
     const storedAuth = apiService.getStoredAuthData();
     const storedCustomer = apiService.getStoredCustomer();
+    const storedCountryConfig = localStorage.getItem("countryConfig");
 
     if (storedAuth && storedCustomer) {
       setBackendAuth(storedAuth);
       setCustomer(storedCustomer);
+      if (storedCountryConfig) {
+        setCountryConfig(JSON.parse(storedCountryConfig));
+      }
     }
 
     // Firebase auth state listener
@@ -91,6 +97,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           if (userDetails) {
             setCustomer(userDetails);
             localStorage.setItem("userdetails", JSON.stringify(userDetails));
+
+            // Fetch country config
+            try {
+              const countryResponse = await apiService.getCustomerCountryConfig(userDetails.customerId);
+              if (countryResponse.result?.countryConfig) {
+                setCountryConfig(countryResponse.result.countryConfig);
+                localStorage.setItem("countryConfig", JSON.stringify(countryResponse.result.countryConfig));
+              }
+            } catch (error) {
+              console.error('Failed to fetch country config:', error);
+            }
           }
 
           // Show appropriate toast message
@@ -160,6 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Clear local state
       setUser(null);
       setCustomer(null);
+      setCountryConfig(null);
       setBackendAuth(null);
       setIsAuthenticated(false);
 
@@ -177,6 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Force clear everything even if logout fails
       setUser(null);
       setCustomer(null);
+      setCountryConfig(null);
       setBackendAuth(null);
       setIsAuthenticated(false);
       localStorage.clear();
@@ -191,6 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const value = {
     user,
     customer,
+    countryConfig,
     loading,
     isAuthenticated,
     backendAuth,

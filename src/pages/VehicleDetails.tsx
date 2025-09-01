@@ -5,17 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Calendar, MapPin, CreditCard, Gauge, Car, Settings, Shield, Palette, FileText, Info, ChevronLeft, ChevronRight, Star, CheckCircle, Clock, Users } from 'lucide-react';
-import { useVehicleDetails } from '@/hooks/useVehicleDetails';
-import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import { formatPrice } from '@/lib/utils';
 
 const VehicleDetails = () => {
   const { vehicleId } = useParams<{ vehicleId: string }>();
   const navigate = useNavigate();
   const { data: vehicle, isLoading, error } = useVehicleDetails(vehicleId ? parseInt(vehicleId) : undefined);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { countryConfig } = useAuth();
 
-  const formatPrice = (price: number) => {
-    return `$${(price / 100).toLocaleString()}`;
+  const formatVehiclePrice = (price: number) => {
+    return formatPrice(price, countryConfig?.currencyCode || 'USD');
   };
 
   const formatDate = (dateString: string) => {
@@ -199,7 +200,7 @@ const VehicleDetails = () => {
                   {vehicle.make} {vehicle.model}
                 </h1>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold">{formatPrice(vehicle.rentCharges)}</span>
+                  <span className="text-3xl font-bold">{formatVehiclePrice(vehicle.rentCharges)}</span>
                   <span className="text-base opacity-90">per day</span>
                 </div>
               </div>

@@ -261,6 +261,10 @@ class ApiService {
     return this.request(`/api/Vehicle/${vehicleId}`);
   }
 
+  async getCustomerCountryConfig(customerId: number): Promise<{ result: { customer: any; countryConfig: any; subscription: any }; hasError: boolean; errorMessage: string; errorCode: number }> {
+    return this.request(`/api/Customer/Country/${customerId}`);
+  }
+
   // Storage Methods
   storeAuthData(response: any): void {
     localStorage.setItem("auth_data", JSON.stringify(response));

@@ -7,6 +7,7 @@ import { Star, MapPin, Calendar, Heart, CreditCard, Gauge } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthPromptModal from './AuthPromptModal';
+import { formatPrice } from '@/lib/utils';
 
 interface Vehicle {
   vehicleId: number;
@@ -45,26 +46,10 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
   const [isSaved, setIsSaved] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated, customer } = useAuth();
+  const { isAuthenticated, customer, countryConfig } = useAuth();
 
-  const formatPrice = (price: number) => {
-    // Get currency from user account if available
-    const currencyCode = customer?.countryConfig?.currencyCd || 'USD';
-
-    // Handle very long currency codes
-    const displayCode = currencyCode.length > 4 ? currencyCode.substring(0, 3) : currencyCode;
-
-    // Format large prices with K suffix for better UX
-    let displayPrice: string;
-    if (price >= 1000) {
-      const kValue = (price / 1000).toFixed(1);
-      // Remove .0 if it's a whole number
-      displayPrice = kValue.endsWith('.0') ? kValue.slice(0, -2) + 'K' : kValue + 'K';
-    } else {
-      displayPrice = price.toLocaleString();
-    }
-
-    return `${displayCode} ${displayPrice}`;
+  const formatVehiclePrice = (price: number) => {
+    return formatPrice(price, countryConfig?.currencyCode || 'USD');
   };
 
   const getYear = (dateString: string) => {
@@ -213,9 +198,9 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
         <div className="flex-1 min-w-0">
           <div className={`font-bold text-foreground truncate ${
-            formatPrice(vehicle.rentCharges).length > 12 ? 'text-xl' : 'text-2xl'
+            formatVehiclePrice(vehicle.rentCharges).length > 12 ? 'text-xl' : 'text-2xl'
           }`}>
-            {formatPrice(vehicle.rentCharges)}
+            {formatVehiclePrice(vehicle.rentCharges)}
           </div>
           <div className="text-xs text-muted-foreground">per day</div>
         </div>
