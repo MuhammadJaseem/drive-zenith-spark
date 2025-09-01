@@ -6,8 +6,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number, currencyCode: string = 'USD') {
+  // Handle null/undefined values
+  if (price === null || price === undefined || isNaN(price)) {
+    return `${currencyCode || 'USD'} 0`;
+  }
+
   // Handle very long currency codes
-  const displayCode = currencyCode.length > 4 ? currencyCode.substring(0, 3) : currencyCode;
+  const displayCode = currencyCode && currencyCode.length > 4 ? currencyCode.substring(0, 3) : (currencyCode || 'USD');
 
   // Format large prices with K suffix for better UX
   let displayPrice: string;
