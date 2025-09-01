@@ -94,7 +94,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
         <div className="relative">
           {/* Car Image */}
           <div className="aspect-video overflow-hidden">
-            {vehicle.resourcePath ? (
+            {vehicle.images ? (
               <motion.img
                 src={vehicle.images.split(';')[0]}
                 alt={`${vehicle.make} ${vehicle.model}`}
@@ -147,7 +147,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
         </motion.button>
 
         {/* Rating */}
-        {rating && rating.averageRating !== null && (
+        {rating && rating.averageRating !== null && rating.averageRating > 0 && (
           <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
             <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
             <span className="text-xs font-medium">{rating.averageRating.toFixed(1)}</span>
