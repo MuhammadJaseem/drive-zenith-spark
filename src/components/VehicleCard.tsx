@@ -45,6 +45,7 @@ interface VehicleCardProps {
 export default function VehicleCard({ vehicle, rating, unavailableDates, blockedDates }: VehicleCardProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const navigate = useNavigate();
   const { isAuthenticated, customer, countryConfig } = useAuth();
 
@@ -84,6 +85,29 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
     setIsSaved(!isSaved);
   };
 
+  // Get image array from semicolon-separated string
+  const getImageArray = (imagesString: string) => {
+    if (!imagesString) return [];
+    return imagesString.split(';').filter(img => img.trim() !== '');
+  };
+
+  // Handle image navigation
+  const nextImage = () => {
+    const images = getImageArray(vehicle.images);
+    if (images.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }
+  };
+
+  const prevImage = () => {
+    const images = getImageArray(vehicle.images);
+    if (images.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+  };
+
+  const images = getImageArray(vehicle.images);
+
   return (
     <motion.div
       whileHover={{ y: -4, scale: 1.02 }}
@@ -93,18 +117,43 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
       <Card className="overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-shadow duration-300">
         <div className="relative">
           {/* Car Image */}
-          <div className="aspect-video overflow-hidden">
+          <div className="aspect-video overflow-hidden relative">
             {vehicle.images ? (
-              <motion.img
-                src={vehicle.images.split(';')[0]}
-                alt={`${vehicle.make} ${vehicle.model}`}
-                className="w-full h-full object-cover"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-                onError={(e) => {
-                  e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=400&h=240&fit=crop&crop=center';
-                }}
-              />
+              <div className="relative w-full h-full">
+                <motion.img
+                  key={currentImageIndex} // Force re-render for instant change
+                  src={images[currentImageIndex] || vehicle.images.split(';')[0]}
+                  alt={`${vehicle.make} ${vehicle.model}`}
+                  className="w-full h-full object-cover bg-gray-100"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=400&h=240&fit=crop&crop=center';
+                  }}
+                />
+                
+                {/* Hover zones for navigation - only show if multiple images */}
+                {images.length > 1 && (
+                  <>
+                    {/* Left hover zone */}
+                    <div
+                      className="absolute left-0 top-0 w-1/4 h-full cursor-pointer opacity-0 hover:opacity-100 transition-opacity duration-200"
+                      onMouseEnter={prevImage}
+                    />
+                    
+                    {/* Right hover zone */}
+                    <div
+                      className="absolute right-0 top-0 w-1/4 h-full cursor-pointer opacity-0 hover:opacity-100 transition-opacity duration-200"
+                      onMouseEnter={nextImage}
+                    />
+                    
+                    {/* Image counter */}
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                      {currentImageIndex + 1}/{images.length}
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
               <div className={`w-full h-full bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center`}>
                 <div className="text-center text-white">
