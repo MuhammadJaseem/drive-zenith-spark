@@ -157,7 +157,7 @@ const VehicleDetails = () => {
 
       {/* Main Content - Horizontal Layout */}
       <div className="container mx-auto px-4 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-120px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           
           {/* Image Gallery - Takes 2 columns */}
           <div className="lg:col-span-2">
@@ -408,39 +408,11 @@ const VehicleDetails = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Additional Conditions */}
-            {(vehicle.additionalConditions || vehicle.comments) && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center">
-                    <FileText className="mr-1 h-3 w-3" />
-                    Additional Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="space-y-2">
-                    {vehicle.additionalConditions && vehicle.additionalConditions.trim() !== '' && (
-                      <div className="text-xs text-gray-600">
-                        <div className="font-medium mb-1">Conditions:</div>
-                        <div className="text-gray-500">{vehicle.additionalConditions}</div>
-                      </div>
-                    )}
-                    {vehicle.comments && vehicle.comments.trim() !== '' && vehicle.comments !== vehicle.additionalConditions && (
-                      <div className="text-xs text-gray-600">
-                        <div className="font-medium mb-1">Comments:</div>
-                        <div className="text-gray-500">{vehicle.comments}</div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
 
           {/* Booking Panel - 1 column */}
           <div>
-            <Card className="h-full">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center justify-between">
                   <span>Book this vehicle</span>
@@ -567,26 +539,40 @@ const VehicleDetails = () => {
                   <Info className="inline h-2 w-2 mr-1" />
                   Free cancellation 24h before pickup
                 </div>
-
-                {/* Trust Signals */}
-                <div className="mt-4 pt-3 border-t">
-                  <div className="space-y-2">
-                    <div className="flex items-center text-xs text-gray-600">
-                      <Shield className="h-3 w-3 text-green-500 mr-2" />
-                      Verified owner
-                    </div>
-                    <div className="flex items-center text-xs text-gray-600">
-                      <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
-                      Insurance included
-                    </div>
-                    <div className="flex items-center text-xs text-gray-600">
-                      <Award className="h-3 w-3 text-blue-500 mr-2" />
-                      24/7 roadside assistance
-                    </div>
-                  </div>
-                </div>
               </CardContent>
             </Card>
+
+            {/* Additional Information - Separate Card */}
+            {(vehicle.additionalConditions || vehicle.comments) && (
+              <Card className="mt-3">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center">
+                    <FileText className="mr-1 h-3 w-3" />
+                    Additional Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-3 max-h-32 overflow-y-auto">
+                    {vehicle.additionalConditions && vehicle.additionalConditions.trim() !== '' && (
+                      <div className="text-xs text-gray-600">
+                        <div className="font-medium mb-1 text-gray-700">Conditions:</div>
+                        <div className="text-gray-500 leading-relaxed whitespace-pre-wrap break-words">
+                          {vehicle.additionalConditions}
+                        </div>
+                      </div>
+                    )}
+                    {vehicle.comments && vehicle.comments.trim() !== '' && vehicle.comments !== vehicle.additionalConditions && (
+                      <div className="text-xs text-gray-600">
+                        <div className="font-medium mb-1 text-gray-700">Comments:</div>
+                        <div className="text-gray-500 leading-relaxed whitespace-pre-wrap break-words">
+                          {vehicle.comments}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
