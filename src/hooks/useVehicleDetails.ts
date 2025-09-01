@@ -66,12 +66,6 @@ const fetchVehicleDetails = async (vehicleId: number): Promise<VehicleDetails> =
     throw new Error(data.errorMessage || 'Failed to fetch vehicle details');
   }
 
-  // Debug: Log the actual API response
-  console.log('API Response:', data);
-  console.log('Vehicle data:', data.result);
-  console.log('seatingCapacity value:', data.result?.seatingCapacity);
-  console.log('All keys:', Object.keys(data.result || {}));
-
   return data.result;
 };
 

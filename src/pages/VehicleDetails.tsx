@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   ArrowLeft, 
   Calendar as CalendarIcon, 
@@ -27,7 +28,8 @@ import {
   Palette,
   Heart,
   Share2,
-  Award
+  Award,
+  Eye
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice } from '@/lib/utils';
@@ -45,6 +47,7 @@ const VehicleDetails = () => {
   const [returnDate, setReturnDate] = useState<Date | undefined>(addDays(new Date(), 3));
   const [isPickupOpen, setIsPickupOpen] = useState(false);
   const [isReturnOpen, setIsReturnOpen] = useState(false);
+  const [isFeaturesModalOpen, setIsFeaturesModalOpen] = useState(false);
   const { countryConfig } = useAuth();
 
   const handleBooking = () => {
@@ -291,37 +294,95 @@ const VehicleDetails = () => {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">
-                  {/* Basic Features */}
-                  <div className="space-y-2">
+                  {/* Basic Features - Compact Grid */}
+                  <div className="grid grid-cols-2 gap-2">
                     {vehicle.seatingCapacity && (
-                      <div className="flex items-center text-xs text-gray-600">
-                        <Users className="h-3 w-3 text-green-500 mr-2" />
-                        {vehicle.seatingCapacity} seats
+                      <div className="flex items-center text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1">
+                        <Users className="h-3 w-3 text-green-500 mr-1 flex-shrink-0" />
+                        <span className="truncate">{vehicle.seatingCapacity} seats</span>
                       </div>
                     )}
                     {vehicle.transmissionType && (
-                      <div className="flex items-center text-xs text-gray-600">
-                        <Settings className="h-3 w-3 text-green-500 mr-2" />
-                        {vehicle.transmissionType} transmission
+                      <div className="flex items-center text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1">
+                        <Settings className="h-3 w-3 text-green-500 mr-1 flex-shrink-0" />
+                        <span className="truncate">{vehicle.transmissionType}</span>
                       </div>
                     )}
                     {vehicle.airConditioning && (
-                      <div className="flex items-center text-xs text-gray-600">
-                        <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
-                        Air Conditioning
+                      <div className="flex items-center text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1">
+                        <CheckCircle className="h-3 w-3 text-green-500 mr-1 flex-shrink-0" />
+                        <span className="truncate">A/C</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Additional Features */}
+                  {/* Additional Features - Limited to 2 rows (6 features) */}
                   {vehicle.additionalFeatures && vehicle.additionalFeatures.trim() !== '' && (
-                    <div className="border-t pt-2">
-                      <div className="text-xs font-medium text-gray-700 mb-2">Additional Features:</div>
-                      <div className="grid grid-cols-1 gap-1">
-                        {vehicle.additionalFeatures.split(',').map((feature, index) => (
-                          <div key={index} className="flex items-center text-xs text-gray-600">
-                            <CheckCircle className="h-2.5 w-2.5 text-blue-500 mr-2 flex-shrink-0" />
-                            <span className="truncate">{feature.trim()}</span>
+                    <div className="border-t pt-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-xs font-medium text-gray-700">Additional Features:</div>
+                        {vehicle.additionalFeatures.split(',').length > 6 && (
+                          <Dialog open={isFeaturesModalOpen} onOpenChange={setIsFeaturesModalOpen}>
+                            <DialogTrigger asChild>
+                              <button className="text-xs text-blue-600 hover:text-blue-800 flex items-center">
+                                <Eye className="h-3 w-3 mr-1" />
+                                Show all ({vehicle.additionalFeatures.split(',').length})
+                              </button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle className="text-lg flex items-center">
+                                  <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                                  All Features - {vehicle.make} {vehicle.model}
+                                </DialogTitle>
+                              </DialogHeader>
+                              <div className="mt-4">
+                                {/* Basic Features in Modal */}
+                                <div className="mb-4">
+                                  <h4 className="text-sm font-medium text-gray-700 mb-2">Basic Features:</h4>
+                                  <div className="grid grid-cols-1 gap-2">
+                                    {vehicle.seatingCapacity && (
+                                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded-md px-3 py-2">
+                                        <Users className="h-4 w-4 text-green-500 mr-2" />
+                                        {vehicle.seatingCapacity} seats
+                                      </div>
+                                    )}
+                                    {vehicle.transmissionType && (
+                                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded-md px-3 py-2">
+                                        <Settings className="h-4 w-4 text-green-500 mr-2" />
+                                        {vehicle.transmissionType} transmission
+                                      </div>
+                                    )}
+                                    {vehicle.airConditioning && (
+                                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded-md px-3 py-2">
+                                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                                        Air Conditioning
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* All Additional Features in Modal */}
+                                <div>
+                                  <h4 className="text-sm font-medium text-gray-700 mb-2">Additional Features:</h4>
+                                  <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
+                                    {vehicle.additionalFeatures.split(',').map((feature, index) => (
+                                      <div key={index} className="flex items-center text-sm text-gray-600 bg-blue-50 rounded-md px-3 py-2">
+                                        <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                                        {feature.trim()}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                        {vehicle.additionalFeatures.split(',').slice(0, 6).map((feature, index) => (
+                          <div key={index} className="text-xs bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-center truncate">
+                            {feature.trim()}
                           </div>
                         ))}
                       </div>
