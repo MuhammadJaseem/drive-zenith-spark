@@ -124,7 +124,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
                   key={currentImageIndex} // Force re-render for instant change
                   src={images[currentImageIndex] || vehicle.images.split(';')[0]}
                   alt={`${vehicle.make} ${vehicle.model}`}
-                  className="w-full h-full object-cover bg-gray-100"
+                  className="w-full h-full object-cover"
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.2 }}
                   onError={(e) => {
@@ -146,11 +146,6 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
                       className="absolute right-0 top-0 w-1/4 h-full cursor-pointer opacity-0 hover:opacity-100 transition-opacity duration-200"
                       onMouseEnter={nextImage}
                     />
-                    
-                    {/* Image counter */}
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-                      {currentImageIndex + 1}/{images.length}
-                    </div>
                   </>
                 )}
               </div>
