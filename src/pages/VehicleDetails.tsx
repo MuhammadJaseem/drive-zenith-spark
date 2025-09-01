@@ -164,15 +164,22 @@ const VehicleDetails = () => {
                   {/* Fixed aspect ratio container for consistent dimensions */}
                   <div className="absolute inset-0 w-full h-full">
                     {images.length > 0 ? (
-                      <img
-                        key={currentImageIndex} // This forces re-render for smooth transition
-                        src={images[currentImageIndex]}
-                        alt={`${vehicle.make} ${vehicle.model} - Image ${currentImageIndex + 1}`}
-                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ease-in-out"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center';
-                        }}
-                      />
+                      <div className="relative w-full h-full">
+                        {images.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`${vehicle.make} ${vehicle.model} - Image ${index + 1}`}
+                            className={cn(
+                              "absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ease-in-out",
+                              index === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+                            )}
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center';
+                            }}
+                          />
+                        ))}
+                      </div>
                     ) : (
                       <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                         <div className="text-center text-white">
