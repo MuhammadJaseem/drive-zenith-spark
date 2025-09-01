@@ -93,21 +93,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setIsAuthorizing(true);
           const authResponse = await apiService.authorize(firebaseUser.email, firebaseUser);
           const isRefresh = !!apiService.getStoredAuthData();
+          console.log('authResponse:', authResponse);
           apiService.storeAuthData(authResponse);
           setBackendAuth(authResponse);
 
           // Extract customer data
-          const userDetails = (authResponse as any)?.userDetails || (authResponse as any)?.customer;
+          const userDetails = (authResponse as any)?.userdetails || (authResponse as any)?.customer;
+          console.log('userDetails:', userDetails);
           if (userDetails) {
+            console.log('userDetails.customerId:', userDetails.customerId);
             setCustomer(userDetails);
             localStorage.setItem("userdetails", JSON.stringify(userDetails));
 
             // Fetch country config
             try {
+              console.log('Fetching country config for customerId:', userDetails.customerId);
               const countryResponse = await apiService.getCustomerCountryConfig(userDetails.customerId);
               if (countryResponse.result?.countryConfig) {
                 setCountryConfig(countryResponse.result.countryConfig);
                 localStorage.setItem("countryConfig", JSON.stringify(countryResponse.result.countryConfig));
+                console.log('Country config fetched successfully:', countryResponse.result.countryConfig);
+              } else {
+                console.log('No country config in response:', countryResponse);
               }
             } catch (error) {
               console.error('Failed to fetch country config:', error);

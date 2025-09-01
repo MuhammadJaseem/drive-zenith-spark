@@ -7,6 +7,8 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Calendar, MapPin, CreditCard, Gauge, Car, Settings, Shield, Palette, FileText, Info, ChevronLeft, ChevronRight, Star, CheckCircle, Clock, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { useVehicleDetails } from '@/hooks/useVehicleDetails';
 
 const VehicleDetails = () => {
   const { vehicleId } = useParams<{ vehicleId: string }>();
