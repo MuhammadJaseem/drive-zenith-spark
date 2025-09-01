@@ -37,12 +37,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [backendAuth, setBackendAuth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(!!getStoredToken());
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Cross-tab synchronization
   useEffect(() => {
     const checkToken = () => {
       const token = getStoredToken();
-      setIsAuthenticated(!!token);
+      // Only update if we're not in the middle of logging out
+      if (token === null) {
+        setIsAuthenticated(false);
+        setUser(null);
+        setCustomer(null);
+        setBackendAuth(null);
+      }
     };
     window.addEventListener('storage', checkToken);
     return () => window.removeEventListener('storage', checkToken);
@@ -60,6 +67,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Firebase auth state listener
     const unsubscribe = onAuthStateChange(async (firebaseUser) => {
+      // Ignore auth state changes during logout
+      if (isLoggingOut) {
+        return;
+      }
+
       setUser(firebaseUser);
 
       if (firebaseUser && firebaseUser.email) {
@@ -74,14 +86,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             setCustomer(userDetails);
             localStorage.setItem("userdetails", JSON.stringify(userDetails));
           }
+
+          // Update authentication state
+          setIsAuthenticated(true);
         } catch (error) {
           console.error('Backend auth failed:', error);
           setBackendAuth(null);
           setCustomer(null);
+          setIsAuthenticated(false);
         }
       } else {
         setBackendAuth(null);
         setCustomer(null);
+        setIsAuthenticated(false);
       }
 
       setLoading(false);
@@ -99,22 +116,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [isAuthenticated, customer]);
 
-  const logout = () => {
-    apiService.clearAuthData();
-    setUser(null);
-    setCustomer(null);
-    setBackendAuth(null);
-    setIsAuthenticated(false);
+  const logout = async () => {
+    try {
+      // Set logging out flag to prevent auth state listener interference
+      setIsLoggingOut(true);
 
-    // Clear all storage
-    localStorage.clear();
-    sessionStorage.clear();
+      // Sign out from Firebase first
+      await import('@/services/firebase').then(async (mod) => {
+        if (mod.logout) {
+          await mod.logout();
+        }
+      });
 
-    // Sign out from Firebase
-    import('@/services/firebase').then(mod => mod.logout?.());
+      // Clear local state
+      setUser(null);
+      setCustomer(null);
+      setBackendAuth(null);
+      setIsAuthenticated(false);
 
-    // Redirect to login
-    window.location.href = '/signin';
+      // Clear all storage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Clear API service data
+      apiService.clearAuthData();
+
+      // Use React Router navigation instead of window.location
+      window.location.replace('/signin');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force clear everything even if logout fails
+      setUser(null);
+      setCustomer(null);
+      setBackendAuth(null);
+      setIsAuthenticated(false);
+      localStorage.clear();
+      sessionStorage.clear();
+      apiService.clearAuthData();
+      window.location.replace('/signin');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const value = {

@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { signInWithGoogle } from '@/services/firebase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Car, ArrowLeft, LogIn } from 'lucide-react';
 
 export default function SignIn() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, customer } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -27,11 +29,37 @@ export default function SignIn() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
+
+      // Check for stored customer data to determine if this is a first-time user
+      const storedCustomerData = localStorage.getItem('userdetails');
+      const parsedCustomerData = storedCustomerData ? JSON.parse(storedCustomerData) : null;
+      const isFirstTimeUser = !customer && !parsedCustomerData;
+
+      // Show appropriate welcome message
+      const welcomeMessage = isFirstTimeUser
+        ? "🎉 Welcome to DriveEase!"
+        : "🎉 Welcome back!";
+
+      const descriptionMessage = isFirstTimeUser
+        ? `Hello ${result.user.displayName || result.user.email}! Ready to explore our premium fleet?`
+        : `Great to see you again, ${result.user.displayName || result.user.email}!`;
+
+      toast({
+        title: welcomeMessage,
+        description: descriptionMessage,
+        duration: 4000,
+      });
+
       // Redirect happens automatically via useEffect
     } catch (error) {
       console.error('Login failed:', error);
-      alert('Login failed. Please try again.');
+      toast({
+        title: "❌ Sign in failed",
+        description: "Please try again or check your connection",
+        variant: "destructive",
+        duration: 4000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -40,8 +68,7 @@ export default function SignIn() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-        <p className="text-gray-600">Loading...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
       </div>
     );
   }
@@ -73,7 +100,7 @@ export default function SignIn() {
                 <Car className="w-8 h-8 text-primary-foreground" />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <CardTitle className="text-2xl font-bold">Welcome to DriveEase</CardTitle>
               <p className="text-muted-foreground">
@@ -92,7 +119,11 @@ export default function SignIn() {
               className="w-full h-12 text-base font-medium border-2 hover:bg-secondary/50 transition-all duration-200"
             >
               <LogIn className="w-5 h-5 mr-3" />
-              {isLoading ? 'Signing in...' : 'Continue with Google'}
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+              ) : (
+                'Continue with Google'
+              )}
             </Button>
 
             {/* Divider */}
@@ -110,7 +141,7 @@ export default function SignIn() {
               <Button variant="outline" size="lg" className="w-full" disabled>
                 <span className="text-muted-foreground">Email Sign-In (Coming Soon)</span>
               </Button>
-              
+
               <Button variant="outline" size="lg" className="w-full" disabled>
                 <span className="text-muted-foreground">Phone Sign-In (Coming Soon)</span>
               </Button>

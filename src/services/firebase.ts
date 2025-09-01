@@ -45,8 +45,20 @@ export const signInWithGoogle = async () => {
 
 // Sign Out Function
 export const logout = async () => {
-  await signOut(auth);
-  localStorage.removeItem("firebase_token");
+  try {
+    await signOut(auth);
+    // Clear all Firebase-related data
+    localStorage.removeItem("firebase_token");
+    // Also clear any Firebase persistence data
+    localStorage.removeItem("firebase:authUser:" + auth.app.options.apiKey + ":" + auth.app.options.authDomain);
+    sessionStorage.clear();
+  } catch (error) {
+    console.error('Firebase logout error:', error);
+    // Still clear local data even if Firebase logout fails
+    localStorage.removeItem("firebase_token");
+    localStorage.removeItem("firebase:authUser:" + auth.app.options.apiKey + ":" + auth.app.options.authDomain);
+    sessionStorage.clear();
+  }
 };
 
 // Get Stored Firebase Token
