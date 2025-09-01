@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
 import { onAuthStateChange, getStoredToken, initializeNotifications } from '@/services/firebase';
 import { apiService } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -10,6 +11,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   backendAuth: any;
   logout: () => void;
+  isAuthorizing: boolean; // Add loading state for authorization
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -19,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   backendAuth: null,
   logout: () => {},
+  isAuthorizing: false,
 });
 
 export const useAuth = () => {
@@ -38,6 +41,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(!!getStoredToken());
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isAuthorizing, setIsAuthorizing] = useState(false);
+  const { toast } = useToast();
 
   // Cross-tab synchronization
   useEffect(() => {
@@ -76,7 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (firebaseUser && firebaseUser.email) {
         try {
-          const authResponse = await apiService.authorize(firebaseUser.email);
+          setIsAuthorizing(true);
+          const authResponse = await apiService.authorize(firebaseUser.email, firebaseUser);
           apiService.storeAuthData(authResponse);
           setBackendAuth(authResponse);
 
@@ -87,13 +93,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             localStorage.setItem("userdetails", JSON.stringify(userDetails));
           }
 
+          // Show appropriate toast message
+          if ((authResponse as any).isNew === true) {
+            toast({
+              title: "🎉 Account Created Successfully!",
+              description: `Welcome to Drive Zenith Spark, ${firebaseUser.displayName || firebaseUser.email}! Your account has been set up.`,
+              duration: 5000,
+            });
+          } else {
+            toast({
+              title: "👋 Welcome Back!",
+              description: `Great to see you again, ${firebaseUser.displayName || firebaseUser.email}!`,
+              duration: 4000,
+            });
+          }
+
           // Update authentication state
           setIsAuthenticated(true);
         } catch (error) {
           console.error('Backend auth failed:', error);
+          toast({
+            title: "❌ Authentication Failed",
+            description: "Unable to sign in. Please try again.",
+            variant: "destructive",
+            duration: 4000,
+          });
           setBackendAuth(null);
           setCustomer(null);
           setIsAuthenticated(false);
+        } finally {
+          setIsAuthorizing(false);
         }
       } else {
         setBackendAuth(null);
@@ -166,6 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isAuthenticated,
     backendAuth,
     logout,
+    isAuthorizing,
   };
 
   return (

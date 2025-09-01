@@ -45,11 +45,26 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
   const [isSaved, setIsSaved] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  
+  const { isAuthenticated, customer } = useAuth();
+
   const formatPrice = (price: number) => {
-    // Assuming price is in cents, convert to dollars
-    return `$${(price / 100).toLocaleString()}`;
+    // Get currency from user account if available
+    const currencyCode = customer?.countryConfig?.currencyCd || 'USD';
+
+    // Handle very long currency codes
+    const displayCode = currencyCode.length > 4 ? currencyCode.substring(0, 3) : currencyCode;
+
+    // Format large prices with K suffix for better UX
+    let displayPrice: string;
+    if (price >= 1000) {
+      const kValue = (price / 1000).toFixed(1);
+      // Remove .0 if it's a whole number
+      displayPrice = kValue.endsWith('.0') ? kValue.slice(0, -2) + 'K' : kValue + 'K';
+    } else {
+      displayPrice = price.toLocaleString();
+    }
+
+    return `${displayCode} ${displayPrice}`;
   };
 
   const getYear = (dateString: string) => {
@@ -140,7 +155,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
             animate={{ scale: isSaved ? 1.2 : 1 }}
             transition={{ duration: 0.2 }}
           >
-            <Heart 
+            <Heart
               className={`w-4 h-4 ${isSaved ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
             />
           </motion.div>
@@ -196,15 +211,17 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
       </CardContent>
 
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
-        <div>
-          <div className="text-2xl font-bold text-foreground">
+        <div className="flex-1 min-w-0">
+          <div className={`font-bold text-foreground truncate ${
+            formatPrice(vehicle.rentCharges).length > 12 ? 'text-xl' : 'text-2xl'
+          }`}>
             {formatPrice(vehicle.rentCharges)}
           </div>
           <div className="text-xs text-muted-foreground">per day</div>
         </div>
-        <Button 
-          variant="accent" 
-          className="px-6"
+        <Button
+          variant="accent"
+          className="px-6 flex-shrink-0"
           onClick={handleViewDetails}
         >
           View Details

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Car, ArrowLeft, LogIn } from 'lucide-react';
 
 export default function SignIn() {
-  const { isAuthenticated, loading, customer } = useAuth();
+  const { isAuthenticated, loading, customer, isAuthorizing } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -29,29 +29,8 @@ export default function SignIn() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      const result = await signInWithGoogle();
-
-      // Check for stored customer data to determine if this is a first-time user
-      const storedCustomerData = localStorage.getItem('userdetails');
-      const parsedCustomerData = storedCustomerData ? JSON.parse(storedCustomerData) : null;
-      const isFirstTimeUser = !customer && !parsedCustomerData;
-
-      // Show appropriate welcome message
-      const welcomeMessage = isFirstTimeUser
-        ? "🎉 Welcome to DriveEase!"
-        : "🎉 Welcome back!";
-
-      const descriptionMessage = isFirstTimeUser
-        ? `Hello ${result.user.displayName || result.user.email}! Ready to explore our premium fleet?`
-        : `Great to see you again, ${result.user.displayName || result.user.email}!`;
-
-      toast({
-        title: welcomeMessage,
-        description: descriptionMessage,
-        duration: 4000,
-      });
-
-      // Redirect happens automatically via useEffect
+      await signInWithGoogle();
+      // Toast messages are now handled in AuthContext
     } catch (error) {
       console.error('Login failed:', error);
       toast({
@@ -113,17 +92,16 @@ export default function SignIn() {
             {/* Google Sign-In Button */}
             <Button
               onClick={handleGoogleSignIn}
-              disabled={isLoading}
+              disabled={isLoading || isAuthorizing}
               variant="outline"
               size="lg"
               className="w-full h-12 text-base font-medium border-2 hover:bg-secondary/50 transition-all duration-200"
             >
               <LogIn className="w-5 h-5 mr-3" />
-              {isLoading ? (
+              {isLoading || isAuthorizing ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
-              ) : (
-                'Continue with Google'
-              )}
+              ) : null}
+              {isLoading ? 'Signing in...' : isAuthorizing ? 'Setting up your account...' : 'Continue with Google'}
             </Button>
 
             {/* Divider */}

@@ -129,11 +129,110 @@ class ApiService {
   }
 
   // Authentication Methods (skip auth for these)
-  async authorize(email: string) {
-    return this.request(
-      `/Login/Authenticate?provider=google&email=${encodeURIComponent(email)}`,
-      { skipAuth: true }
-    );
+  async authorize(email: string, firebaseUser?: any) {
+    try {
+      // First try to authenticate (login) the user
+      const authResponse = await this.request(
+        `/Login/Authenticate?provider=google&email=${encodeURIComponent(email)}`,
+        { skipAuth: true }
+      );
+
+      // Check if user is new and needs registration
+      if (authResponse && (authResponse as any).isNew === true) {
+        console.log('User is new, attempting registration');
+        if (firebaseUser) {
+          const registerResponse = await this.registerUser(firebaseUser);
+          return { ...registerResponse, isNew: true };
+        } else {
+          throw new Error('Firebase user data required for registration');
+        }
+      }
+
+      return { ...(authResponse as any), isNew: false };
+    } catch (error: any) {
+      // If authentication fails (user not registered), try registration
+      console.log('Authentication failed, attempting registration:', error);
+      
+      if (firebaseUser) {
+        try {
+          const registerResponse = await this.registerUser(firebaseUser);
+          return { ...registerResponse, isNew: true };
+        } catch (registerError) {
+          console.error('Registration also failed:', registerError);
+          throw registerError;
+        }
+      }
+      
+      throw error;
+    }
+  }
+
+  // Register new user with multipart/form-data
+  private async registerUser(firebaseUser: any) {
+    const formData = new FormData();
+    
+    // Extract names from displayName if available
+    const displayName = firebaseUser.displayName || '';
+    const nameParts = displayName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Populate form data with available information
+    formData.append('Email', firebaseUser.email || '');
+    formData.append('FirstName', firstName);
+    formData.append('LastName', lastName);
+    formData.append('Provider', 'google');
+    formData.append('Username', firebaseUser.email || displayName || '');
+    
+    // Add empty/default values for required fields
+    formData.append('Picture', ''); // Empty as specified
+    formData.append('Country', '');
+    formData.append('Dob', '');
+    formData.append('City', '');
+    formData.append('Mobile', '');
+    formData.append('Address', '');
+    formData.append('Crn', '');
+    formData.append('Crnexpiry', '');
+    formData.append('ForiegnLicenseNo', '');
+    formData.append('ForiegnLicenseExpiry', '');
+    formData.append('PassportNo', '');
+    formData.append('PassportExpiry', '');
+    formData.append('VisaNo', '');
+    formData.append('VisaExpiry', '');
+    formData.append('Images', '');
+    formData.append('FcmToken', '');
+    formData.append('FuelUnit', '0'); // Default to 0 as integer
+
+    // Try to fetch profile picture if available
+    if (firebaseUser.photoURL) {
+      try {
+        const response = await fetch(firebaseUser.photoURL);
+        if (response.ok) {
+          const blob = await response.blob();
+          formData.append('ProofOfaddress', blob, 'profile-picture.jpg');
+        }
+      } catch (error) {
+        console.log('Could not fetch profile picture:', error);
+      }
+    }
+
+    // Add empty file for InternationalDrivingLicensePhoto
+    formData.append('InternationalDrivingLicensePhoto', new Blob(), '');
+
+    // Make the registration request
+    const url = `${API_BASE_URL}/api/Customer?role=renter`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      // Don't set Content-Type header - let browser set it with boundary for multipart/form-data
+    });
+
+    if (!response.ok) {
+      throw new Error(`Registration failed: ${response.status}`);
+    }
+
+    return await response.json();
   }
 
   async refreshToken(refreshTokenRequest: any) {
