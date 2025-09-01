@@ -98,8 +98,13 @@ export default function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
-                  {user?.email}
+                <div className="px-2 py-1.5">
+                  <div
+                    className="text-sm font-medium text-muted-foreground truncate max-w-[160px]"
+                    title={user?.email}
+                  >
+                    {user?.email}
+                  </div>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
