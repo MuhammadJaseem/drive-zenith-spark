@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User } from 'firebase/auth';
 import { onAuthStateChange, getStoredToken, initializeNotifications } from '@/services/firebase';
 import { apiService } from '@/services/api';
@@ -18,6 +19,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   customer: null,
+  countryConfig: null,
   loading: true,
   isAuthenticated: false,
   backendAuth: null,
@@ -36,6 +38,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [customer, setCustomer] = useState<any>(null);
   const [countryConfig, setCountryConfig] = useState<any>(null);
@@ -89,6 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           setIsAuthorizing(true);
           const authResponse = await apiService.authorize(firebaseUser.email, firebaseUser);
+          const isRefresh = !!apiService.getStoredAuthData();
           apiService.storeAuthData(authResponse);
           setBackendAuth(authResponse);
 
@@ -111,18 +115,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           }
 
           // Show appropriate toast message
-          if ((authResponse as any).isNew === true) {
-            toast({
-              title: "🎉 Account Created Successfully!",
-              description: `Welcome to Drive Zenith Spark, ${firebaseUser.displayName || firebaseUser.email}! Your account has been set up.`,
-              duration: 5000,
-            });
-          } else {
-            toast({
-              title: "👋 Welcome Back!",
-              description: `Great to see you again, ${firebaseUser.displayName || firebaseUser.email}!`,
-              duration: 4000,
-            });
+          if (!isRefresh) {
+            if ((authResponse as any).isNew === true) {
+              toast({
+                title: "🎉 Account Created Successfully!",
+                description: `Welcome to Drive Zenith Spark, ${firebaseUser.displayName || firebaseUser.email}! Your account has been set up.`,
+                duration: 5000,
+              });
+            } else {
+              toast({
+                title: "👋 Welcome Back!",
+                description: `Great to see you again, ${firebaseUser.displayName || firebaseUser.email}!`,
+                duration: 4000,
+              });
+            }
           }
 
           // Update authentication state
@@ -189,7 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       apiService.clearAuthData();
 
       // Use React Router navigation instead of window.location
-      window.location.replace('/signin');
+      navigate('/signin');
     } catch (error) {
       console.error('Logout error:', error);
       // Force clear everything even if logout fails
@@ -201,7 +207,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.clear();
       sessionStorage.clear();
       apiService.clearAuthData();
-      window.location.replace('/signin');
+      navigate('/signin');
     } finally {
       setIsLoggingOut(false);
     }
