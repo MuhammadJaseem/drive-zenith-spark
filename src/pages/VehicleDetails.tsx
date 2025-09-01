@@ -4,34 +4,60 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Calendar, MapPin, CreditCard, Gauge, Car, Settings, Shield, Palette, FileText, Info, ChevronLeft, ChevronRight, Star, CheckCircle, Clock, Users } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { 
+  ArrowLeft, 
+  Calendar as CalendarIcon, 
+  MapPin, 
+  CreditCard, 
+  Gauge, 
+  Car, 
+  Settings, 
+  Shield, 
+  FileText, 
+  Info, 
+  ChevronLeft, 
+  ChevronRight, 
+  Star, 
+  CheckCircle, 
+  Users, 
+  Phone, 
+  MessageCircle,
+  Palette,
+  Heart,
+  Share2,
+  Award
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useVehicleDetails } from '@/hooks/useVehicleDetails';
+import { format, addDays, differenceInDays } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const VehicleDetails = () => {
   const { vehicleId } = useParams<{ vehicleId: string }>();
   const navigate = useNavigate();
   const { data: vehicle, isLoading, error } = useVehicleDetails(vehicleId ? parseInt(vehicleId) : undefined);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [pickupDate, setPickupDate] = useState<Date | undefined>(new Date());
+  const [returnDate, setReturnDate] = useState<Date | undefined>(addDays(new Date(), 3));
+  const [isPickupOpen, setIsPickupOpen] = useState(false);
+  const [isReturnOpen, setIsReturnOpen] = useState(false);
   const { countryConfig } = useAuth();
 
-  const formatVehiclePrice = (price: number) => {
-    return formatPrice(price, countryConfig?.currencyCode || 'USD');
+  const handleBooking = () => {
+    console.log('Booking vehicle:', vehicle?.vehicleId);
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString();
+  const calculateTotal = () => {
+    if (!pickupDate || !returnDate || !vehicle) return 0;
+    const days = differenceInDays(returnDate, pickupDate);
+    return days * vehicle.rentCharges;
   };
 
-  const getYear = (dateString: string) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).getFullYear().toString();
-  };
-
-  // Handle multiple images from the images string
+  // Handle multiple images from the images string - restored original logic
   const getImageArray = (imagesString: string) => {
     if (!imagesString) return [];
     return imagesString.split(';').filter(img => img.trim() !== '');
@@ -53,301 +79,401 @@ const VehicleDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="max-w-7xl mx-auto p-4">
-          <div className="animate-pulse">
-            <div className="h-12 bg-white rounded-lg shadow-sm mb-6"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <div className="aspect-[4/3] bg-muted rounded-xl"></div>
-              </div>
-              <div className="space-y-4">
-                <div className="h-32 bg-white rounded-xl shadow-sm"></div>
-                <div className="h-48 bg-white rounded-xl shadow-sm"></div>
-              </div>
-            </div>
-          </div>
+      <div className="container mx-auto px-4 py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[80vh]">
+          <div className="lg:col-span-2 bg-gray-200 rounded-md animate-pulse" />
+          <div className="bg-gray-200 rounded-md animate-pulse" />
+          <div className="bg-gray-200 rounded-md animate-pulse" />
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !vehicle) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-        <div className="max-w-7xl mx-auto text-center py-12">
-          <div className="space-y-4">
-            <h1 className="text-2xl font-bold text-destructive">Error Loading Vehicle</h1>
-            <p className="text-muted-foreground">
-              {error instanceof Error ? error.message : 'Failed to load vehicle details'}
-            </p>
-            <Button onClick={() => navigate('/')} variant="accent">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Vehicles
-            </Button>
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Vehicle not found</h2>
+          <Button onClick={() => navigate('/')} variant="outline" size="sm">
+            <ArrowLeft className="mr-1 h-3 w-3" />
+            Back to search
+          </Button>
         </div>
       </div>
     );
   }
 
-  if (!vehicle) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-        <div className="max-w-7xl mx-auto text-center py-12">
-          <div className="space-y-4">
-            <h1 className="text-2xl font-bold">Vehicle Not Found</h1>
-            <p className="text-muted-foreground">The requested vehicle could not be found.</p>
-            <Button onClick={() => navigate('/')} variant="accent">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Vehicles
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const images = getImageArray(vehicle.images);
+  const images = getImageArray(vehicle.images || '');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="max-w-7xl mx-auto p-4">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 hover:bg-white/50"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Vehicles
-          </Button>
-        </motion.div>
-
-        {/* Main Content - Modern Horizontal Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-          {/* Left Side - Image Gallery (2/3 width - sticky) */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="lg:col-span-2"
-          >
-            <div className="lg:sticky lg:top-8 space-y-6">
-              {/* Main Image Display */}
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-white border border-gray-200">
-              {images.length > 0 ? (
-                <img
-                  src={images[currentImageIndex]}
-                  alt={`${vehicle.make} ${vehicle.model}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center';
-                  }}
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <Car className="w-24 h-24 mx-auto mb-4" />
-                    <p className="text-xl font-medium">No Image Available</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Navigation Arrows */}
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all"
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all"
-                  >
-                    <ChevronRight className="w-6 h-6" />
-                  </button>
-                </>
-              )}
-
-              {/* Availability Badge */}
-              <div className="absolute top-4 right-4">
-                <Badge variant={vehicle.isavailable ? "success" : "destructive"} className="text-sm px-4 py-2">
-                  {vehicle.isavailable ? "Available" : "Unavailable"}
-                </Badge>
-              </div>
-            </div>
-            </div>
-          </motion.div>
-
-          {/* Right Side - Vehicle Information (1/3 width - compact) */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="lg:col-span-1 space-y-4"
-          >
-            {/* Title and Price Card */}
-            <Card className="bg-white border border-gray-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-white">
-                <h1 className="text-2xl font-bold mb-2">
+    <div className="min-h-screen bg-gray-50">
+      {/* Compact Header */}
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/')}
+                className="flex items-center"
+              >
+                <ArrowLeft className="mr-1 h-3 w-3" />
+                Back
+              </Button>
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">
                   {vehicle.make} {vehicle.model}
                 </h1>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold">{formatVehiclePrice(vehicle.rentCharges)}</span>
-                  <span className="text-base opacity-90">per day</span>
-                </div>
-              </div>
-              <CardContent className="p-6">
-                <Button variant="accent" className="w-full py-4 text-lg font-semibold transition-all" size="lg">
-                  Book Now
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Key Features Grid */}
-            <div className="grid grid-cols-1 gap-3">
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center space-x-3 text-xs text-gray-500">
+                  <div className="flex items-center">
+                    <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                    4.8 (124)
                   </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">Year</p>
-                    <p className="font-bold text-sm">{getYear(vehicle.manufactureMonthYear)}</p>
+                  <div className="flex items-center">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    {vehicle.registeredCity}
                   </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Gauge className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">Mileage</p>
-                    <p className="font-bold text-sm">{vehicle.odometer?.toLocaleString() || '0'} km</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">Location</p>
-                    <p className="font-bold text-sm">{vehicle.registeredCity}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">Payment</p>
-                    <p className="font-bold text-sm">{vehicle.paymentMethod || 'Cash'}</p>
+                  <div className="text-lg font-bold text-blue-600">
+                    {formatPrice(vehicle.rentCharges, countryConfig?.currencyCode || 'USD')}/day
                   </div>
                 </div>
               </div>
             </div>
+            <div className="flex items-center space-x-1">
+              <Button variant="ghost" size="sm">
+                <Heart className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="sm">
+                <Share2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Quick Details Card */}
-            <Card className="bg-white border border-gray-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Info className="w-5 h-5 text-primary" />
-                  Vehicle Details
+      {/* Main Content - Horizontal Layout */}
+      <div className="container mx-auto px-4 py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-120px)]">
+          
+          {/* Image Gallery - Takes 2 columns */}
+          <div className="lg:col-span-2">
+            <Card className="h-full">
+              <CardContent className="p-0 h-full">
+                <div className="relative h-full overflow-hidden rounded-lg">
+                  {/* Single Image Display with smooth fade transition */}
+                  {images.length > 0 ? (
+                    <img
+                      key={currentImageIndex} // This forces re-render for smooth transition
+                      src={images[currentImageIndex]}
+                      alt={`${vehicle.make} ${vehicle.model} - Image ${currentImageIndex + 1}`}
+                      className="w-full h-full object-cover transition-opacity duration-300 ease-in-out"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <Car className="w-20 h-20 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg font-medium">No Image Available</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Navigation Arrows */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl z-10"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl z-10"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Dot Indicators */}
+                  {images.length > 1 && (
+                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                      {images.map((_, index) => (
+                        <button
+                          key={index}
+                          className={cn(
+                            "w-2 h-2 rounded-full transition-all duration-200",
+                            index === currentImageIndex 
+                              ? "bg-white scale-125" 
+                              : "bg-white/60 hover:bg-white/80"
+                          )}
+                          onClick={() => setCurrentImageIndex(index)}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Image Counter */}
+                  {images.length > 1 && (
+                    <div className="absolute top-3 right-3 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium z-10">
+                      {currentImageIndex + 1} / {images.length}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Vehicle Info - 1 column */}
+          <div className="space-y-3">
+            {/* Quick Specs */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center">
+                  <Car className="mr-1 h-3 w-3" />
+                  Specifications
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-sm text-muted-foreground">Exterior Color</span>
-                  <span className="font-medium">{vehicle.extColor || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-sm text-muted-foreground">Interior Color</span>
-                  <span className="font-medium">{vehicle.intColor || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-sm text-muted-foreground">Registration</span>
-                  <span className="font-medium">{vehicle.rego || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-muted-foreground">Rego Expiry</span>
-                  <span className="font-medium">{formatDate(vehicle.regoExpiry)}</span>
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <Gauge className="h-3 w-3 text-gray-400" />
+                    <span className="text-gray-600">{vehicle.odometer} km</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Settings className="h-3 w-3 text-gray-400" />
+                    <span className="text-gray-600">Auto</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Users className="h-3 w-3 text-gray-400" />
+                    <span className="text-gray-600">5 seats</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Palette className="h-3 w-3 text-gray-400" />
+                    <span className="text-gray-600">{vehicle.extColor}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Rental Terms Card */}
-            <Card className="bg-white border border-gray-200">
+            {/* Features */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center">
+                  <CheckCircle className="mr-1 h-3 w-3" />
+                  Features
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex flex-wrap gap-1">
+                  <Badge variant="secondary" className="text-xs py-0 px-2 h-5">
+                    Automatic
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs py-0 px-2 h-5">
+                    Petrol
+                  </Badge>
+                  <Badge variant="outline" className="text-xs py-0 px-2 h-5">
+                    A/C
+                  </Badge>
+                  <Badge variant="outline" className="text-xs py-0 px-2 h-5">
+                    GPS
+                  </Badge>
+                </div>
+                
+                <div className="mt-3 space-y-1">
+                  <div className="flex items-center text-xs text-gray-600">
+                    <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
+                    Air Conditioning
+                  </div>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
+                    GPS Navigation
+                  </div>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
+                    Bluetooth
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Host */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center">
+                  <Shield className="mr-1 h-3 w-3" />
+                  Host
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Users className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium">John Smith</div>
+                      <div className="text-xs text-gray-500 flex items-center">
+                        <Star className="h-2 w-2 text-yellow-400 fill-current mr-1" />
+                        4.9 • 89 trips
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex space-x-1">
+                    <Button variant="outline" size="sm" className="h-6 w-6 p-0">
+                      <Phone className="h-3 w-3" />
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-6 w-6 p-0">
+                      <MessageCircle className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Booking Panel - 1 column */}
+          <div>
+            <Card className="h-full">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Shield className="w-5 h-5 text-primary" />
-                  Rental Terms
+                <CardTitle className="text-sm flex items-center justify-between">
+                  <span>Book this vehicle</span>
+                  <Shield className="h-3 w-3 text-green-500" />
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
+                {/* Date Selection - Compact */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Free cancellation up to 24h</span>
+                  <div>
+                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                      Pickup
+                    </label>
+                    <Popover open={isPickupOpen} onOpenChange={setIsPickupOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start text-left font-normal h-8"
+                        >
+                          <CalendarIcon className="mr-1 h-3 w-3" />
+                          <span className="text-xs">
+                            {pickupDate ? format(pickupDate, "MMM dd") : "Select"}
+                          </span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={pickupDate}
+                          onSelect={(date) => {
+                            setPickupDate(date);
+                            setIsPickupOpen(false);
+                          }}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Insurance included</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>24/7 roadside assistance</span>
+
+                  <div>
+                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                      Return
+                    </label>
+                    <Popover open={isReturnOpen} onOpenChange={setIsReturnOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start text-left font-normal h-8"
+                        >
+                          <CalendarIcon className="mr-1 h-3 w-3" />
+                          <span className="text-xs">
+                            {returnDate ? format(returnDate, "MMM dd") : "Select"}
+                          </span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={returnDate}
+                          onSelect={(date) => {
+                            setReturnDate(date);
+                            setIsReturnOpen(false);
+                          }}
+                          disabled={(date) => date <= (pickupDate || new Date())}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
                 <Separator />
 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Pickup</span>
-                    <span className="font-medium">{vehicle.pickupLocation || 'TBD'}</span>
+                {/* Price Breakdown - Compact */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">Daily rate</span>
+                    <span className="font-medium">{formatPrice(vehicle.rentCharges, countryConfig?.currencyCode || 'USD')}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Dropoff</span>
-                    <span className="font-medium">{vehicle.dropoffLocation || 'TBD'}</span>
+                  {pickupDate && returnDate && (
+                    <>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">Days</span>
+                        <span className="font-medium">{differenceInDays(returnDate, pickupDate)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">Service fee</span>
+                        <span className="font-medium">{formatPrice(25, countryConfig?.currencyCode || 'USD')}</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between text-sm font-semibold">
+                        <span>Total</span>
+                        <span className="text-blue-600">{formatPrice(calculateTotal() + 25, countryConfig?.currencyCode || 'USD')}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <Button 
+                  className="w-full h-8 text-xs" 
+                  onClick={handleBooking}
+                  disabled={!pickupDate || !returnDate}
+                >
+                  <CreditCard className="mr-1 h-3 w-3" />
+                  Book Now
+                </Button>
+
+                <div className="text-xs text-gray-500 text-center">
+                  <Info className="inline h-2 w-2 mr-1" />
+                  Free cancellation 24h before pickup
+                </div>
+
+                {/* Trust Signals */}
+                <div className="mt-4 pt-3 border-t">
+                  <div className="space-y-2">
+                    <div className="flex items-center text-xs text-gray-600">
+                      <Shield className="h-3 w-3 text-green-500 mr-2" />
+                      Verified owner
+                    </div>
+                    <div className="flex items-center text-xs text-gray-600">
+                      <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
+                      Insurance included
+                    </div>
+                    <div className="flex items-center text-xs text-gray-600">
+                      <Award className="h-3 w-3 text-blue-500 mr-2" />
+                      24/7 roadside assistance
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Notes Section - Only if comments exist */}
-            {vehicle.comments && (
-              <Card className="bg-white border border-gray-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <FileText className="w-5 h-5 text-primary" />
-                    Notes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {vehicle.comments}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
