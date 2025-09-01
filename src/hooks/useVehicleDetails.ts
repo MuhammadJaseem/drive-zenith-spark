@@ -14,14 +14,42 @@ interface VehicleDetails {
   intColor: string;
   rego: string;
   regoExpiry: string;
+  linkT: string | null;
   odometer: number;
+  seatingCapacity: number;
+  transmissionType: string;
+  airConditioning: boolean;
+  additionalFeatures: string;
+  images: string;
+  isRented: boolean;
+  isArchived: boolean;
+  archiveReason: string | null;
+  archiveComments: string | null;
+  resourcePath: string;
+  owner: number;
+  fuelUnit: number;
   comments: string;
   registeredCity: string;
   registeredCountry: string;
+  excessKm: number;
+  kmAllowed: number;
+  additionalConditions: string;
   pickupLocation: string;
   dropoffLocation: string;
   paymentMethod: string;
-  images: string;
+  cancellationPolicyId: number;
+  minRentPeriod: number;
+  isRentalListingApproved: boolean;
+  rentalListingStatus: string;
+  rentalListingRemarks: string;
+  rentalListingDate: string;
+  rentalListingReviewedBy: string;
+  rentalListingRejectionReason: string | null;
+  createdAt: string;
+  createdByUserId: number | null;
+  lastModifiedDate: string;
+  lastModifiedByUserId: number;
+  isActive: boolean;
 }
 
 interface ApiResponse {
@@ -37,6 +65,12 @@ const fetchVehicleDetails = async (vehicleId: number): Promise<VehicleDetails> =
   if (data.hasError) {
     throw new Error(data.errorMessage || 'Failed to fetch vehicle details');
   }
+
+  // Debug: Log the actual API response
+  console.log('API Response:', data);
+  console.log('Vehicle data:', data.result);
+  console.log('seatingCapacity value:', data.result?.seatingCapacity);
+  console.log('All keys:', Object.keys(data.result || {}));
 
   return data.result;
 };

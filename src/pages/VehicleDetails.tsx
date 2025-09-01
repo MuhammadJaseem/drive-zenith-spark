@@ -244,27 +244,39 @@ const VehicleDetails = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center">
                   <Car className="mr-1 h-3 w-3" />
-                  Specifications
+                  Vehicle Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="flex items-center space-x-2">
-                    <Gauge className="h-3 w-3 text-gray-400" />
-                    <span className="text-gray-600">{vehicle.odometer} km</span>
+                <div className="grid grid-cols-1 gap-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Year</span>
+                    <span className="font-medium">{new Date(vehicle.manufactureMonthYear).getFullYear()}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Settings className="h-3 w-3 text-gray-400" />
-                    <span className="text-gray-600">Auto</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Exterior</span>
+                    <span className="font-medium">{vehicle.extColor}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Users className="h-3 w-3 text-gray-400" />
-                    <span className="text-gray-600">5 seats</span>
+                  {vehicle.intColor && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Interior</span>
+                      <span className="font-medium">{vehicle.intColor}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Odometer</span>
+                    <span className="font-medium">{vehicle.odometer.toLocaleString()} km</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Palette className="h-3 w-3 text-gray-400" />
-                    <span className="text-gray-600">{vehicle.extColor}</span>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Registration</span>
+                    <span className="font-medium">{vehicle.rego}</span>
                   </div>
+                  {vehicle.regoExpiry && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Rego Expiry</span>
+                      <span className="font-medium">{new Date(vehicle.regoExpiry).toLocaleDateString()}</span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -274,75 +286,120 @@ const VehicleDetails = () => {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center">
                   <CheckCircle className="mr-1 h-3 w-3" />
-                  Features
+                  Vehicle Features
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="flex flex-wrap gap-1">
-                  <Badge variant="secondary" className="text-xs py-0 px-2 h-5">
-                    Automatic
-                  </Badge>
-                  <Badge variant="secondary" className="text-xs py-0 px-2 h-5">
-                    Petrol
-                  </Badge>
-                  <Badge variant="outline" className="text-xs py-0 px-2 h-5">
-                    A/C
-                  </Badge>
-                  <Badge variant="outline" className="text-xs py-0 px-2 h-5">
-                    GPS
-                  </Badge>
+                <div className="space-y-3">
+                  {/* Basic Features */}
+                  <div className="space-y-2">
+                    {vehicle.seatingCapacity && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <Users className="h-3 w-3 text-green-500 mr-2" />
+                        {vehicle.seatingCapacity} seats
+                      </div>
+                    )}
+                    {vehicle.transmissionType && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <Settings className="h-3 w-3 text-green-500 mr-2" />
+                        {vehicle.transmissionType} transmission
+                      </div>
+                    )}
+                    {vehicle.airConditioning && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
+                        Air Conditioning
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Additional Features */}
+                  {vehicle.additionalFeatures && vehicle.additionalFeatures.trim() !== '' && (
+                    <div className="border-t pt-2">
+                      <div className="text-xs font-medium text-gray-700 mb-2">Additional Features:</div>
+                      <div className="grid grid-cols-1 gap-1">
+                        {vehicle.additionalFeatures.split(',').map((feature, index) => (
+                          <div key={index} className="flex items-center text-xs text-gray-600">
+                            <CheckCircle className="h-2.5 w-2.5 text-blue-500 mr-2 flex-shrink-0" />
+                            <span className="truncate">{feature.trim()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                
-                <div className="mt-3 space-y-1">
-                  <div className="flex items-center text-xs text-gray-600">
-                    <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
-                    Air Conditioning
-                  </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
-                    GPS Navigation
-                  </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
-                    Bluetooth
+              </CardContent>
+            </Card>
+
+            {/* Payment & Policy */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center">
+                  <CreditCard className="mr-1 h-3 w-3" />
+                  Payment & Policy
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-2 text-xs">
+                  {vehicle.paymentMethod && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Payment Method</span>
+                      <span className="font-medium capitalize">{vehicle.paymentMethod}</span>
+                    </div>
+                  )}
+                  {vehicle.minRentPeriod && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Min. Rental Period</span>
+                      <span className="font-medium">{vehicle.minRentPeriod} day{vehicle.minRentPeriod > 1 ? 's' : ''}</span>
+                    </div>
+                  )}
+                  {vehicle.kmAllowed && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Km Allowed/Day</span>
+                      <span className="font-medium">{vehicle.kmAllowed} km</span>
+                    </div>
+                  )}
+                  {vehicle.excessKm && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Excess Km Rate</span>
+                      <span className="font-medium">${vehicle.excessKm}/km</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Cancellation</span>
+                    <span className="font-medium">24h free</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Host */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm flex items-center">
-                  <Shield className="mr-1 h-3 w-3" />
-                  Host
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Users className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-medium">John Smith</div>
-                      <div className="text-xs text-gray-500 flex items-center">
-                        <Star className="h-2 w-2 text-yellow-400 fill-current mr-1" />
-                        4.9 • 89 trips
+            {/* Additional Conditions */}
+            {(vehicle.additionalConditions || vehicle.comments) && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center">
+                    <FileText className="mr-1 h-3 w-3" />
+                    Additional Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    {vehicle.additionalConditions && vehicle.additionalConditions.trim() !== '' && (
+                      <div className="text-xs text-gray-600">
+                        <div className="font-medium mb-1">Conditions:</div>
+                        <div className="text-gray-500">{vehicle.additionalConditions}</div>
                       </div>
-                    </div>
+                    )}
+                    {vehicle.comments && vehicle.comments.trim() !== '' && vehicle.comments !== vehicle.additionalConditions && (
+                      <div className="text-xs text-gray-600">
+                        <div className="font-medium mb-1">Comments:</div>
+                        <div className="text-gray-500">{vehicle.comments}</div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex space-x-1">
-                    <Button variant="outline" size="sm" className="h-6 w-6 p-0">
-                      <Phone className="h-3 w-3" />
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-6 w-6 p-0">
-                      <MessageCircle className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Booking Panel - 1 column */}
@@ -355,11 +412,11 @@ const VehicleDetails = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {/* Date Selection - Compact */}
+                {/* Date & Location Selection - Compact */}
                 <div className="space-y-2">
                   <div>
                     <label className="text-xs font-medium text-gray-700 mb-1 block">
-                      Pickup
+                      Pickup Date & Location
                     </label>
                     <Popover open={isPickupOpen} onOpenChange={setIsPickupOpen}>
                       <PopoverTrigger asChild>
@@ -387,11 +444,17 @@ const VehicleDetails = () => {
                         />
                       </PopoverContent>
                     </Popover>
+                    {vehicle.pickupLocation && (
+                      <div className="text-xs text-gray-500 mt-1 flex items-center">
+                        <MapPin className="h-2 w-2 mr-1" />
+                        {vehicle.pickupLocation}
+                      </div>
+                    )}
                   </div>
 
                   <div>
                     <label className="text-xs font-medium text-gray-700 mb-1 block">
-                      Return
+                      Return Date & Location
                     </label>
                     <Popover open={isReturnOpen} onOpenChange={setIsReturnOpen}>
                       <PopoverTrigger asChild>
@@ -419,6 +482,12 @@ const VehicleDetails = () => {
                         />
                       </PopoverContent>
                     </Popover>
+                    {vehicle.dropoffLocation && (
+                      <div className="text-xs text-gray-500 mt-1 flex items-center">
+                        <MapPin className="h-2 w-2 mr-1" />
+                        {vehicle.dropoffLocation}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -433,7 +502,7 @@ const VehicleDetails = () => {
                   {pickupDate && returnDate && (
                     <>
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-600">Days</span>
+                        <span className="text-gray-600">Rental days</span>
                         <span className="font-medium">{differenceInDays(returnDate, pickupDate)}</span>
                       </div>
                       <div className="flex justify-between text-xs">

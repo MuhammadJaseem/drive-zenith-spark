@@ -21,6 +21,17 @@ interface Vehicle {
   dropoffLocation: string;
   paymentMethod: string;
   comments: string;
+  seatingCapacity?: number;
+  transmissionType?: string;
+  airConditioning?: boolean;
+  additionalFeatures?: string;
+  additionalConditions?: string;
+  cancellationPolicyId?: number;
+  minRentPeriod?: number;
+  excessKm?: number;
+  kmAllowed?: number;
+  owner?: number;
+  fuelUnit?: number;
 }
 
 interface Rating {
