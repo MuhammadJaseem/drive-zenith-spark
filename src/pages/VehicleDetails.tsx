@@ -337,34 +337,9 @@ const VehicleDetails = () => {
                                 </DialogTitle>
                               </DialogHeader>
                               <div className="mt-4">
-                                {/* Basic Features in Modal */}
-                                <div className="mb-4">
-                                  <h4 className="text-sm font-medium text-gray-700 mb-2">Basic Features:</h4>
-                                  <div className="grid grid-cols-1 gap-2">
-                                    {vehicle.seatingCapacity && (
-                                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded-md px-3 py-2">
-                                        <Users className="h-4 w-4 text-green-500 mr-2" />
-                                        {vehicle.seatingCapacity} seats
-                                      </div>
-                                    )}
-                                    {vehicle.transmissionType && (
-                                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded-md px-3 py-2">
-                                        <Settings className="h-4 w-4 text-green-500 mr-2" />
-                                        {vehicle.transmissionType} transmission
-                                      </div>
-                                    )}
-                                    {vehicle.airConditioning && (
-                                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 rounded-md px-3 py-2">
-                                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                                        Air Conditioning
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-
                                 {/* All Additional Features in Modal */}
                                 <div>
-                                  <h4 className="text-sm font-medium text-gray-700 mb-2">Additional Features:</h4>
+                                  <h4 className="text-sm font-medium text-gray-700 mb-3">Additional Features ({vehicle.additionalFeatures.split(',').length}):</h4>
                                   <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
                                     {vehicle.additionalFeatures.split(',').map((feature, index) => (
                                       <div key={index} className="flex items-center text-sm text-gray-600 bg-blue-50 rounded-md px-3 py-2">
