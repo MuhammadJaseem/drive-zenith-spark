@@ -308,7 +308,14 @@ const VehicleDetails = () => {
                         <span className="truncate">{vehicle.transmissionType}</span>
                       </div>
                     )}
-                    {vehicle.airConditioning && (
+                    {vehicle.airConditioning &&
+                     vehicle.airConditioning !== 'false' &&
+                     vehicle.airConditioning !== false &&
+                     vehicle.airConditioning !== 'no' &&
+                     vehicle.airConditioning !== 'No' &&
+                     vehicle.airConditioning !== 'NO' &&
+                     vehicle.airConditioning !== '0' &&
+                     vehicle.airConditioning !== 0 && (
                       <div className="flex items-center text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1">
                         <CheckCircle className="h-3 w-3 text-green-500 mr-1 flex-shrink-0" />
                         <span className="truncate">A/C</span>
