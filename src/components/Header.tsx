@@ -105,7 +105,7 @@ export default function Header() {
                 <DropdownMenuItem
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="text-red-600 focus:text-red-600"
+                  className="text-red-600 focus:text-red-600 hover:text-white hover:bg-red-600"
                 >
                   {isLoggingOut ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
