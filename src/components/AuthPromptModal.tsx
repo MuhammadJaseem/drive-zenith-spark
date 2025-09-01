@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Car, Shield, Star, CheckCircle } from 'lucide-react';
 import { signInWithGoogle } from '@/services/firebase';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AuthPromptModalProps {
   isOpen: boolean;
@@ -11,20 +12,28 @@ interface AuthPromptModalProps {
 }
 
 const AuthPromptModal = ({ isOpen, onClose, vehicleId }: AuthPromptModalProps) => {
+  const { isAuthenticated } = useAuth();
 
   const handleGoogleSignIn = async () => {
     try {
       // Store the intended destination for after authentication
       if (vehicleId) {
-        sessionStorage.setItem('redirectUrl', `/vehicle/${vehicleId}`);
+        localStorage.setItem('redirectUrl', `/vehicle/${vehicleId}`);
       }
 
       await signInWithGoogle();
-      onClose();
+      // Modal will close automatically when isAuthenticated becomes true
     } catch (error) {
       console.error('Login failed:', error);
     }
   };
+
+  // Close modal when user becomes authenticated
+  useEffect(() => {
+    if (isAuthenticated && isOpen) {
+      onClose();
+    }
+  }, [isAuthenticated, isOpen, onClose]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

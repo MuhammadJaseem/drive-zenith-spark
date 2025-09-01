@@ -6,7 +6,7 @@ import {
   signOut,
   onAuthStateChanged,
   setPersistence,
-  browserSessionPersistence,
+  browserLocalPersistence,
   User,
 } from "firebase/auth";
 import {
@@ -35,23 +35,23 @@ googleProvider.addScope("profile");
 
 // Google Sign-In Function
 export const signInWithGoogle = async () => {
-  await setPersistence(auth, browserSessionPersistence);
+  await setPersistence(auth, browserLocalPersistence);
   const result = await signInWithPopup(auth, googleProvider);
   const idToken = await result.user.getIdToken();
 
-  sessionStorage.setItem("firebase_token", idToken);
+  localStorage.setItem("firebase_token", idToken);
   return { user: result.user, idToken };
 };
 
 // Sign Out Function
 export const logout = async () => {
   await signOut(auth);
-  sessionStorage.removeItem("firebase_token");
+  localStorage.removeItem("firebase_token");
 };
 
 // Get Stored Firebase Token
 export const getStoredToken = (): string | null => {
-  return sessionStorage.getItem("firebase_token");
+  return localStorage.getItem("firebase_token");
 };
 
 // Auth State Listener

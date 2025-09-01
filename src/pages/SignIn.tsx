@@ -14,9 +14,9 @@ export default function SignIn() {
   // Redirect if already authenticated
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      const redirectUrl = sessionStorage.getItem('redirectUrl');
+      const redirectUrl = localStorage.getItem('redirectUrl');
       if (redirectUrl) {
-        sessionStorage.removeItem('redirectUrl');
+        localStorage.removeItem('redirectUrl');
         navigate(redirectUrl, { replace: true });
       } else {
         navigate('/', { replace: true });
