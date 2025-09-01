@@ -35,6 +35,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useVehicleDetails } from '@/hooks/useVehicleDetails';
+import { useCustomerDetails, useUserRating } from '@/hooks/useCustomer';
 import { format, addDays, differenceInDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -42,6 +43,8 @@ const VehicleDetails = () => {
   const { vehicleId } = useParams<{ vehicleId: string }>();
   const navigate = useNavigate();
   const { data: vehicle, isLoading, error } = useVehicleDetails(vehicleId ? parseInt(vehicleId) : undefined);
+  const { data: customer } = useCustomerDetails(vehicle?.owner);
+  const { data: ownerRating } = useUserRating(vehicle?.owner);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [pickupDate, setPickupDate] = useState<Date | undefined>(new Date());
   const [returnDate, setReturnDate] = useState<Date | undefined>(addDays(new Date(), 3));
@@ -413,6 +416,109 @@ const VehicleDetails = () => {
                     <span className="font-medium">24h free</span>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Owner Profile */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center">
+                  <Users className="mr-1 h-3 w-3" />
+                  Listed By
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex items-center space-x-3">
+                  {/* Profile Avatar */}
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                      {customer?.profilePicture ? (
+                        <img
+                          src={customer.profilePicture}
+                          alt={`${customer.firstName} ${customer.lastName}`}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <Users className="h-5 w-5 text-gray-400" />
+                      )}
+                    </div>
+                    {customer?.verified && (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                        <CheckCircle className="h-2.5 w-2.5 text-white" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* User Info */}
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-gray-900 leading-tight">
+                      {customer ? `${customer.firstName} ${customer.lastName}` : 'Loading...'}
+                    </h4>
+                    <div className="flex items-center justify-between mt-1">
+                      {/* Empty left side for name */}
+                      <div></div>
+                      
+                      {/* Rating with trips on the right */}
+                      {ownerRating && ownerRating.averageRating > 0 && (
+                        <div className="flex items-center space-x-1">
+                          <div className="flex items-center">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <div key={star} className="relative">
+                                <Star
+                                  className={`h-3 w-3 ${
+                                    star <= Math.floor(ownerRating.averageRating)
+                                      ? 'text-amber-400 fill-current'
+                                      : 'text-gray-300'
+                                  }`}
+                                />
+                                {/* Half star overlay for partial ratings */}
+                                {star - 0.5 <= ownerRating.averageRating &&
+                                 star > Math.floor(ownerRating.averageRating) && (
+                                  <div className="absolute inset-0 overflow-hidden w-1/2">
+                                    <Star className="h-3 w-3 text-amber-400 fill-current" />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <span className="text-xs font-bold text-gray-900">
+                            {ownerRating.averageRating.toFixed(1)}
+                          </span>
+                          <span className="text-gray-400">•</span>
+                          <span className="text-xs text-gray-500">
+                            {ownerRating.totalReviews} {ownerRating.totalReviews === 1 ? 'trip' : 'trips'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Call Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-9 h-9 p-0 border-gray-300 hover:bg-gray-50"
+                    onClick={() => {
+                      if (customer?.mobile) {
+                        window.open(`tel:${customer.mobile}`, '_self');
+                      }
+                    }}
+                  >
+                    <Phone className="h-4 w-4 text-gray-600" />
+                  </Button>
+                </div>
+
+                {/* Additional Info */}
+                {customer && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <div className="grid grid-cols-1 gap-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Total Trips</span>
+                        <span className="font-medium text-gray-900">127</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

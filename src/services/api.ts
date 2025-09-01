@@ -261,8 +261,12 @@ class ApiService {
     return this.request(`/api/Vehicle/${vehicleId}`);
   }
 
-  async getCustomerCountryConfig(customerId: number): Promise<{ result: { customer: any; countryConfig: any; subscription: any }; hasError: boolean; errorMessage: string; errorCode: number }> {
-    return this.request(`/api/Customer/Country/${customerId}`);
+  async getCustomerDetails(customerId: number): Promise<{ result: any; hasError: boolean; errorMessage: string; errorCode: number }> {
+    return this.request(`/api/Customer/${customerId}`);
+  }
+
+  async getUserRating(userId: number): Promise<{ result: any; hasError: boolean; errorMessage: string; errorCode: number }> {
+    return this.request(`/api/UserRating/${userId}`);
   }
 
   // Storage Methods
