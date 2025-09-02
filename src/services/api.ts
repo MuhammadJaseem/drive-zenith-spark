@@ -266,7 +266,7 @@ class ApiService {
   }
 
   async getUserRating(userId: number): Promise<{ result: any; hasError: boolean; errorMessage: string; errorCode: number }> {
-    return this.request(`/api/UserRating/${userId}`);
+    return this.request(`/api/Review/rating/${userId}`);
   }
 
   // Storage Methods

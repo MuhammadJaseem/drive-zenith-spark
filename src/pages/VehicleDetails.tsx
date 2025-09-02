@@ -472,43 +472,34 @@ const VehicleDetails = () => {
                     <h4 className="text-sm font-medium text-gray-900 leading-tight">
                       {customer ? `${customer.firstName} ${customer.lastName}` : 'Loading...'}
                     </h4>
-                    <div className="flex items-center justify-between mt-1">
-                      {/* Empty left side for name */}
-                      <div></div>
-                      
-                      {/* Rating with trips on the right */}
-                      {displayRating && displayRating.averageRating > 0 && (
-                        <div className="flex items-center space-x-1">
-                          <div className="flex items-center">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <div key={star} className="relative">
-                                <Star
-                                  className={`h-3 w-3 ${
-                                    star <= Math.floor(displayRating.averageRating)
-                                      ? 'text-amber-400 fill-current'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                                {/* Half star overlay for partial ratings */}
-                                {star - 0.5 <= displayRating.averageRating &&
-                                 star > Math.floor(displayRating.averageRating) && (
-                                  <div className="absolute inset-0 overflow-hidden w-1/2">
-                                    <Star className="h-3 w-3 text-amber-400 fill-current" />
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                          <span className="text-xs font-bold text-gray-900">
-                            {displayRating.averageRating.toFixed(1)}
-                          </span>
-                          <span className="text-gray-400">•</span>
-                          <span className="text-xs text-gray-500">
-                            {displayRating.totalReviews} {displayRating.totalReviews === 1 ? 'trip' : 'trips'}
-                          </span>
+                    {/* Rating display - moved to left side */}
+                    {displayRating && displayRating.averageRating > 0 && (
+                      <div className="flex items-center space-x-1 mt-1">
+                        <div className="flex items-center">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <div key={star} className="relative">
+                              <Star
+                                className={`h-3 w-3 ${
+                                  star <= Math.floor(displayRating.averageRating)
+                                    ? 'text-amber-400 fill-current'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                              {/* Half star overlay for partial ratings */}
+                              {star - 0.5 <= displayRating.averageRating &&
+                               star > Math.floor(displayRating.averageRating) && (
+                                <div className="absolute inset-0 overflow-hidden w-1/2">
+                                  <Star className="h-3 w-3 text-amber-400 fill-current" />
+                                </div>
+                              )}
+                            </div>
+                          ))}
                         </div>
-                      )}
-                    </div>
+                        <span className="text-xs font-bold text-gray-900">
+                          {displayRating.averageRating.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Call Button */}
@@ -525,18 +516,6 @@ const VehicleDetails = () => {
                     <Phone className="h-4 w-4 text-gray-600" />
                   </Button>
                 </div>
-
-                {/* Additional Info */}
-                {customer && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <div className="grid grid-cols-1 gap-2 text-xs">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Total Trips</span>
-                        <span className="font-medium text-gray-900">127</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
