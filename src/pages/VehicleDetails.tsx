@@ -344,7 +344,7 @@ const VehicleDetails = () => {
                     )}
                   </div>
 
-                  {/* Additional Features - Limited to 2 rows (6 features) */}
+                  {/* Additional Features - Smart display to prevent overflow */}
                   {vehicle.additionalFeatures && vehicle.additionalFeatures.trim() !== '' && (
                     <div className="border-t pt-3">
                       <div className="flex items-center justify-between mb-2">
@@ -365,7 +365,6 @@ const VehicleDetails = () => {
                                 </DialogTitle>
                               </DialogHeader>
                               <div className="mt-4">
-                                {/* All Additional Features in Modal */}
                                 <div>
                                   <h4 className="text-sm font-medium text-gray-700 mb-3">Additional Features ({vehicle.additionalFeatures.split(',').length}):</h4>
                                   <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
@@ -382,9 +381,9 @@ const VehicleDetails = () => {
                           </Dialog>
                         )}
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                      <div className="space-y-2">
                         {vehicle.additionalFeatures.split(',').slice(0, 6).map((feature, index) => (
-                          <div key={index} className="text-xs bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-center truncate">
+                          <div key={index} className="inline-block bg-blue-50 text-blue-700 rounded-full px-3 py-1 text-xs mr-2 mb-1">
                             {feature.trim()}
                           </div>
                         ))}
