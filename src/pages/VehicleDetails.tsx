@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +29,8 @@ import {
   Heart,
   Share2,
   Award,
-  Eye
+  Eye,
+  X
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice } from '@/lib/utils';
@@ -42,6 +43,7 @@ import { cn } from '@/lib/utils';
 const VehicleDetails = () => {
   const { vehicleId } = useParams<{ vehicleId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: vehicle, isLoading, error } = useVehicleDetails(vehicleId ? parseInt(vehicleId) : undefined);
   const { data: customer } = useCustomerDetails(vehicle?.owner);
   const { data: ownerRating } = useUserRating(vehicle?.owner);
@@ -52,6 +54,10 @@ const VehicleDetails = () => {
   const [isReturnOpen, setIsReturnOpen] = useState(false);
   const [isFeaturesModalOpen, setIsFeaturesModalOpen] = useState(false);
   const { countryConfig } = useAuth();
+
+  // Get rating from navigation state, fallback to API call
+  const passedRating = location.state?.rating;
+  const displayRating = passedRating || ownerRating;
 
   const handleBooking = () => {
     console.log('Booking vehicle:', vehicle?.vehicleId);
@@ -134,7 +140,14 @@ const VehicleDetails = () => {
                 <div className="flex items-center space-x-3 text-xs text-gray-500">
                   <div className="flex items-center">
                     <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                    4.8 (124)
+                    {displayRating && displayRating.averageRating > 0 ? (
+                      <>
+                        <span>{displayRating.averageRating.toFixed(1)}</span>
+                        <span className="ml-1">({displayRating.totalReviews} trips)</span>
+                      </>
+                    ) : (
+                      'No rating'
+                    )}
                   </div>
                   <div className="flex items-center">
                     <MapPin className="h-3 w-3 mr-1" />
@@ -318,10 +331,15 @@ const VehicleDetails = () => {
                      vehicle.airConditioning !== 'No' &&
                      vehicle.airConditioning !== 'NO' &&
                      vehicle.airConditioning !== '0' &&
-                     vehicle.airConditioning !== 0 && (
+                     vehicle.airConditioning !== 0 ? (
                       <div className="flex items-center text-xs text-gray-600 bg-gray-50 rounded-md px-2 py-1">
                         <CheckCircle className="h-3 w-3 text-green-500 mr-1 flex-shrink-0" />
                         <span className="truncate">A/C</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-xs text-gray-600 bg-red-50 rounded-md px-2 py-1">
+                        <X className="h-3 w-3 text-red-500 mr-1 flex-shrink-0" />
+                        <span className="truncate">No A/C</span>
                       </div>
                     )}
                   </div>
@@ -459,21 +477,21 @@ const VehicleDetails = () => {
                       <div></div>
                       
                       {/* Rating with trips on the right */}
-                      {ownerRating && ownerRating.averageRating > 0 && (
+                      {displayRating && displayRating.averageRating > 0 && (
                         <div className="flex items-center space-x-1">
                           <div className="flex items-center">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <div key={star} className="relative">
                                 <Star
                                   className={`h-3 w-3 ${
-                                    star <= Math.floor(ownerRating.averageRating)
+                                    star <= Math.floor(displayRating.averageRating)
                                       ? 'text-amber-400 fill-current'
                                       : 'text-gray-300'
                                   }`}
                                 />
                                 {/* Half star overlay for partial ratings */}
-                                {star - 0.5 <= ownerRating.averageRating &&
-                                 star > Math.floor(ownerRating.averageRating) && (
+                                {star - 0.5 <= displayRating.averageRating &&
+                                 star > Math.floor(displayRating.averageRating) && (
                                   <div className="absolute inset-0 overflow-hidden w-1/2">
                                     <Star className="h-3 w-3 text-amber-400 fill-current" />
                                   </div>
@@ -482,11 +500,11 @@ const VehicleDetails = () => {
                             ))}
                           </div>
                           <span className="text-xs font-bold text-gray-900">
-                            {ownerRating.averageRating.toFixed(1)}
+                            {displayRating.averageRating.toFixed(1)}
                           </span>
                           <span className="text-gray-400">•</span>
                           <span className="text-xs text-gray-500">
-                            {ownerRating.totalReviews} {ownerRating.totalReviews === 1 ? 'trip' : 'trips'}
+                            {displayRating.totalReviews} {displayRating.totalReviews === 1 ? 'trip' : 'trips'}
                           </span>
                         </div>
                       )}

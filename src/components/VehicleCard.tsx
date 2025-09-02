@@ -75,7 +75,9 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
 
   const handleViewDetails = () => {
     if (isAuthenticated) {
-      navigate(`/vehicle/${vehicle.vehicleId}`);
+      navigate(`/vehicle/${vehicle.vehicleId}`, {
+        state: { rating }
+      });
     } else {
       setShowAuthModal(true);
     }
