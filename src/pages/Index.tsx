@@ -53,7 +53,7 @@ const Index = () => {
       {/* Search & Filters */}
       <section className="py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <SearchFilters onFiltersChange={handleFiltersChange} isLoading={isLoading} />
+          <SearchFilters onFiltersChange={handleFiltersChange} isLoading={isLoading} currencyCode={vehicles?.[0]?.currencyCode} />
         </div>
       </section>
 
@@ -114,19 +114,16 @@ const Index = () => {
           {/* Vehicle Grid */}
           {vehicles && vehicles.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {vehicles.map((vehicleData) => {
-                console.log('Index: Passing currencyCode to VehicleCard:', vehicleData.currencyCode);
-                return (
-                  <VehicleCard
-                    key={vehicleData.vehicle.vehicleId}
-                    vehicle={vehicleData.vehicle}
-                    rating={vehicleData.rating}
-                    unavailableDates={vehicleData.unavailableDates}
-                    blockedDates={vehicleData.blockedDates}
-                    currencyCode={vehicleData.currencyCode}
-                  />
-                );
-              })}
+              {vehicles.map((vehicleData) => (
+                <VehicleCard
+                  key={vehicleData.vehicle.vehicleId}
+                  vehicle={vehicleData.vehicle}
+                  rating={vehicleData.rating}
+                  unavailableDates={vehicleData.unavailableDates}
+                  blockedDates={vehicleData.blockedDates}
+                  currencyCode={vehicleData.currencyCode}
+                />
+              ))}
             </div>
           )}
         </div>

@@ -5,15 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatPrice } from '@/lib/utils';
 
 interface PriceRangeDialogProps {
   minPrice?: number;
   maxPrice?: number;
+  currencyCode?: string;
   onApply: (min: number, max: number) => void;
   children: React.ReactNode;
 }
 
-export default function PriceRangeDialog({ minPrice = 0, maxPrice = 1000, onApply, children }: PriceRangeDialogProps) {
+export default function PriceRangeDialog({ minPrice = 0, maxPrice = 1000, currencyCode = 'USD', onApply, children }: PriceRangeDialogProps) {
   const [open, setOpen] = useState(false);
   const [range, setRange] = useState([minPrice, maxPrice]);
   const [minInput, setMinInput] = useState(minPrice.toString());
@@ -77,8 +79,8 @@ export default function PriceRangeDialog({ minPrice = 0, maxPrice = 1000, onAppl
               className="w-full"
             />
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>$0</span>
-              <span>$2000+</span>
+              <span>{formatPrice(0, currencyCode)}</span>
+              <span>{formatPrice(2000, currencyCode)}+ </span>
             </div>
           </div>
 
@@ -120,7 +122,7 @@ export default function PriceRangeDialog({ minPrice = 0, maxPrice = 1000, onAppl
             transition={{ duration: 0.2 }}
           >
             <p className="text-sm text-muted-foreground">Selected Range</p>
-            <p className="text-lg font-semibold">${range[0]} - ${range[1]}</p>
+            <p className="text-lg font-semibold">{formatPrice(range[0], currencyCode)} - {formatPrice(range[1], currencyCode)}</p>
           </motion.div>
 
           {/* Action Buttons */}

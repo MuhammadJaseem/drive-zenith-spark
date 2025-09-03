@@ -17,9 +17,10 @@ import { formatPrice } from '@/lib/utils';
 interface SearchFiltersProps {
   onFiltersChange: (filters: VehicleFilters) => void;
   isLoading?: boolean;
+  currencyCode?: string;
 }
 
-export default function SearchFilters({ onFiltersChange, isLoading }: SearchFiltersProps) {
+export default function SearchFilters({ onFiltersChange, isLoading, currencyCode }: SearchFiltersProps) {
   const [filters, setFilters] = useState<VehicleFilters>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [makes, setMakes] = useState<any[]>([]);
@@ -329,6 +330,7 @@ export default function SearchFilters({ onFiltersChange, isLoading }: SearchFilt
                 <PriceRangeDialog
                   minPrice={filters.minPrice}
                   maxPrice={filters.maxPrice}
+                  currencyCode={currencyCode}
                   onApply={handlePriceRangeApply}
                 >
                   <Button 

@@ -92,17 +92,13 @@ interface VehicleFilters {
 
 const fetchVehicles = async (filters: VehicleFilters = {}): Promise<VehicleResponse[]> => {
   const data: ApiResponse = await apiService.getVehicles(filters);
-  const mappedData = (data.result || []).map((item: ApiVehicleResponse) => {
-    console.log('useVehicles: Extracting currencyCode from API response:', item.currencyCode);
-    return {
-      vehicle: item.vehicle,
-      rating: item.rating,
-      unavailableDates: item.unavailableDates,
-      blockedDates: item.blockedDates,
-      currencyCode: item.currencyCode
-    };
-  });
-  return mappedData;
+  return (data.result || []).map((item: ApiVehicleResponse) => ({
+    vehicle: item.vehicle,
+    rating: item.rating,
+    unavailableDates: item.unavailableDates,
+    blockedDates: item.blockedDates,
+    currencyCode: item.currencyCode
+  }));
 };
 
 export const useVehicles = (filters: VehicleFilters = {}) => {
