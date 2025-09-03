@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Coins } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatPrice } from '@/lib/utils';
 
@@ -57,7 +57,7 @@ export default function PriceRangeDialog({ minPrice = 0, maxPrice = 1000, curren
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5" />
+            <Coins className="w-5 h-5" />
             Price Range
           </DialogTitle>
         </DialogHeader>
@@ -89,7 +89,7 @@ export default function PriceRangeDialog({ minPrice = 0, maxPrice = 1000, curren
             <div className="space-y-2">
               <label className="text-sm font-medium">Min Price</label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Coins className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="number"
                   value={minInput}
@@ -103,7 +103,7 @@ export default function PriceRangeDialog({ minPrice = 0, maxPrice = 1000, curren
             <div className="space-y-2">
               <label className="text-sm font-medium">Max Price</label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Coins className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="number"
                   value={maxInput}

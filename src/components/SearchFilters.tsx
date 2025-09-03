@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, MapPin, Calendar, DollarSign, Filter, X, Car } from 'lucide-react';
+import { Search, MapPin, Calendar, DollarSign, Filter, X, Car, Coins } from 'lucide-react';
 import { VehicleFilters } from '@/hooks/useVehicles';
 import MakePickerDialog from './MakePickerDialog';
 import ModelPickerDialog from './ModelPickerDialog';
@@ -337,7 +337,7 @@ export default function SearchFilters({ onFiltersChange, isLoading, currencyCode
                     variant="outline" 
                     className="w-full justify-start"
                   >
-                    <DollarSign className="w-4 h-4 mr-2" />
+                    <Coins className="w-4 h-4 mr-2" />
                     {filters.minPrice || filters.maxPrice 
                       ? `${formatPrice(filters.minPrice || 0, countryConfig?.currencyCode || 'USD')} - ${filters.maxPrice ? formatPrice(filters.maxPrice, countryConfig?.currencyCode || 'USD') : '∞'}` 
                       : 'Price Range'
