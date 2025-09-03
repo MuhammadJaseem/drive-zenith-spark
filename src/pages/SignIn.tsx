@@ -81,7 +81,7 @@ export default function SignIn() {
             </div>
 
             <div className="space-y-2">
-              <CardTitle className="text-2xl font-bold">Welcome to DriveEase</CardTitle>
+              <CardTitle className="text-2xl font-bold">Welcome to FleetMate</CardTitle>
               <p className="text-muted-foreground">
                 Sign in to access premium car rentals and exclusive deals
               </p>
@@ -141,7 +141,7 @@ export default function SignIn() {
 
         {/* Features */}
         <div className="mt-8 text-center space-y-2">
-          <p className="text-sm font-medium text-foreground">Why choose DriveEase?</p>
+          <p className="text-sm font-medium text-foreground">Why choose FleetMate?</p>
           <div className="flex justify-center gap-6 text-xs text-muted-foreground">
             <span>✓ No Hidden Fees</span>
             <span>✓ 24/7 Support</span>

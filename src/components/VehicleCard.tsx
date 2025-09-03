@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +46,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
   const [isSaved, setIsSaved] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0])); // Track loaded images
   const navigate = useNavigate();
   const { isAuthenticated, customer, countryConfig } = useAuth();
 
@@ -93,20 +94,49 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
     return imagesString.split(';').filter(img => img.trim() !== '');
   };
 
+  // Preload next/previous images
+  const preloadImage = (index: number) => {
+    const images = getImageArray(vehicle.images);
+    if (index >= 0 && index < images.length && !loadedImages.has(index)) {
+      const img = new Image();
+      img.onload = () => {
+        setLoadedImages(prev => new Set([...prev, index]));
+      };
+      img.src = images[index];
+    }
+  };
+
   // Handle image navigation
   const nextImage = () => {
     const images = getImageArray(vehicle.images);
     if (images.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      const nextIndex = (currentImageIndex + 1) % images.length;
+      setCurrentImageIndex(nextIndex);
+      // Preload the next image after this one
+      preloadImage((nextIndex + 1) % images.length);
     }
   };
 
   const prevImage = () => {
     const images = getImageArray(vehicle.images);
     if (images.length > 1) {
-      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      const prevIndex = (currentImageIndex - 1 + images.length) % images.length;
+      setCurrentImageIndex(prevIndex);
+      // Preload the previous image before this one
+      preloadImage((prevIndex - 1 + images.length) % images.length);
     }
   };
+
+  // Preload adjacent images when component mounts
+  useEffect(() => {
+    const images = getImageArray(vehicle.images);
+    if (images.length > 1) {
+      // Preload the next image
+      preloadImage(1);
+      // Preload the last image (for previous navigation)
+      preloadImage(images.length - 1);
+    }
+  }, [vehicle.images]);
 
   const images = getImageArray(vehicle.images);
 
@@ -119,33 +149,46 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
       <Card className="overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-shadow duration-300">
         <div className="relative">
           {/* Car Image */}
-          <div className="aspect-video overflow-hidden relative">
+          <div className="aspect-video overflow-hidden relative bg-gray-100">
             {vehicle.images ? (
               <div className="relative w-full h-full">
-                <motion.img
-                  key={currentImageIndex} // Force re-render for instant change
-                  src={images[currentImageIndex] || vehicle.images.split(';')[0]}
-                  alt={`${vehicle.make} ${vehicle.model}`}
-                  className="w-full h-full object-cover"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=400&h=240&fit=crop&crop=center';
-                  }}
-                />
+                {/* Render all images with absolute positioning for smooth transitions */}
+                {images.map((image, index) => (
+                  <motion.img
+                    key={`${vehicle.vehicleId}-${index}`} // Stable key to prevent remounting
+                    src={image}
+                    alt={`${vehicle.make} ${vehicle.model} - Image ${index + 1}`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    initial={{ opacity: index === 0 ? 1 : 0 }}
+                    animate={{ 
+                      opacity: index === currentImageIndex ? 1 : 0,
+                      scale: index === currentImageIndex ? 1.02 : 1
+                    }}
+                    transition={{ 
+                      opacity: { duration: 0.3, ease: "easeInOut" },
+                      scale: { duration: 0.2 }
+                    }}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=400&h=240&fit=crop&crop=center';
+                    }}
+                    style={{
+                      zIndex: index === currentImageIndex ? 2 : 1
+                    }}
+                  />
+                ))}
                 
                 {/* Hover zones for navigation - only show if multiple images */}
                 {images.length > 1 && (
                   <>
                     {/* Left hover zone */}
                     <div
-                      className="absolute left-0 top-0 w-1/4 h-full cursor-pointer opacity-0 hover:opacity-100 transition-opacity duration-200"
+                      className="absolute left-0 top-0 w-1/3 h-full cursor-pointer z-10 transition-all duration-200 hover:bg-black/5"
                       onMouseEnter={prevImage}
                     />
                     
                     {/* Right hover zone */}
                     <div
-                      className="absolute right-0 top-0 w-1/4 h-full cursor-pointer opacity-0 hover:opacity-100 transition-opacity duration-200"
+                      className="absolute right-0 top-0 w-1/3 h-full cursor-pointer z-10 transition-all duration-200 hover:bg-black/5"
                       onMouseEnter={nextImage}
                     />
                   </>

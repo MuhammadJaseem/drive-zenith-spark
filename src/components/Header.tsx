@@ -63,7 +63,7 @@ export default function Header() {
               <Car className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">DriveEase</h1>
+              <h1 className="text-xl font-bold text-foreground">FleetMate</h1>
               <p className="text-xs text-muted-foreground">Premium Car Rentals</p>
             </div>
           </div>
