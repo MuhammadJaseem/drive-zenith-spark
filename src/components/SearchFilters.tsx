@@ -149,47 +149,59 @@ export default function SearchFilters({ onFiltersChange, isLoading, currencyCode
         <div className="space-y-4">
           {/* Primary Search */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="City or Country"
-                value={filters.city || ''}
-                onChange={(e) => handleFilterChange('city', e.target.value)}
-                className="pl-10"
-              />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Location</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="City or Country"
+                  value={filters.city || ''}
+                  onChange={(e) => handleFilterChange('city', e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
             
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                type="date"
-                placeholder="Start Date"
-                value={filters.availableStartDate?.split('T')[0] || ''}
-                onChange={(e) => handleFilterChange('availableStartDate', e.target.value ? `${e.target.value}T00:00:00` : '')}
-                className="pl-10"
-              />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Pickup Date</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  type="date"
+                  placeholder="Start Date"
+                  value={filters.availableStartDate?.split('T')[0] || ''}
+                  onChange={(e) => handleFilterChange('availableStartDate', e.target.value ? `${e.target.value}T00:00:00` : '')}
+                  className="pl-10"
+                />
+              </div>
             </div>
             
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                type="date"
-                placeholder="End Date"
-                value={filters.availableEndDate?.split('T')[0] || ''}
-                onChange={(e) => handleFilterChange('availableEndDate', e.target.value ? `${e.target.value}T00:00:00` : '')}
-                className="pl-10"
-              />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Return Date</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  type="date"
+                  placeholder="End Date"
+                  value={filters.availableEndDate?.split('T')[0] || ''}
+                  onChange={(e) => handleFilterChange('availableEndDate', e.target.value ? `${e.target.value}T00:00:00` : '')}
+                  className="pl-10"
+                />
+              </div>
             </div>
             
-            <Button 
-              onClick={handleSearch} 
-              className="w-full" 
-              variant="accent"
-              disabled={isLoading}
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Search
-            </Button>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground opacity-0">Search</label>
+              <Button 
+                onClick={handleSearch} 
+                className="w-full h-10" 
+                variant="accent"
+                disabled={isLoading}
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Search
+              </Button>
+            </div>
           </div>
 
           {/* Advanced Filters Toggle */}

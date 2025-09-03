@@ -240,13 +240,6 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
             )}
           </div>
 
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex gap-2">
-          <Badge variant="success" className="text-xs font-medium">
-            Available
-          </Badge>
-        </div>
-
         {/* Save Button */}
         <motion.button
           className="absolute top-3 right-12 w-8 h-8 bg-background/90 backdrop-blur-sm rounded-full items-center justify-center hidden"
