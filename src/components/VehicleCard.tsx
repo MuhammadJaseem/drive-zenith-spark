@@ -107,8 +107,9 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
 
   const handleViewDetails = () => {
     if (isAuthenticated) {
+      console.log('VehicleCard: Passing currencyCode to navigation state:', currencyCode);
       navigate(`/vehicle/${vehicle.vehicleId}`, {
-        state: { rating }
+        state: { rating, currencyCode }
       });
     } else {
       setShowAuthModal(true);

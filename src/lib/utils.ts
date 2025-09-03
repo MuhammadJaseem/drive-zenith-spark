@@ -6,6 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number, currencyCode: string = 'USD') {
+  console.log('formatPrice called with:', { price, currencyCode });
+  
   // Handle null/undefined values
   if (price === null || price === undefined || isNaN(price)) {
     return `${currencyCode || 'USD'} 0`;
@@ -24,5 +26,7 @@ export function formatPrice(price: number, currencyCode: string = 'USD') {
     displayPrice = price.toLocaleString();
   }
 
-  return `${displayCode} ${displayPrice}`;
+  const result = `${displayCode} ${displayPrice}`;
+  console.log('formatPrice result:', result);
+  return result;
 }

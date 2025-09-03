@@ -55,9 +55,13 @@ const VehicleDetails = () => {
   const [isFeaturesModalOpen, setIsFeaturesModalOpen] = useState(false);
   const { countryConfig } = useAuth();
 
-  // Get rating from navigation state, fallback to API call
+  // Get rating and currencyCode from navigation state, fallback to API call for rating
   const passedRating = location.state?.rating;
+  const passedCurrencyCode = location.state?.currencyCode;
   const displayRating = passedRating || ownerRating;
+
+  console.log('VehicleDetails: Received currencyCode from navigation state:', passedCurrencyCode);
+  console.log('VehicleDetails: countryConfig currencyCode:', countryConfig?.currencyCode);
 
   const handleBooking = () => {
     console.log('Booking vehicle:', vehicle?.vehicleId);
@@ -154,7 +158,7 @@ const VehicleDetails = () => {
                     {vehicle.registeredCity}
                   </div>
                   <div className="text-lg font-bold text-blue-600">
-                    {formatPrice(vehicle.rentCharges, countryConfig?.currencyCode || 'USD')}/day
+                    {formatPrice(vehicle.rentCharges, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}/day
                   </div>
                 </div>
               </div>
@@ -614,7 +618,7 @@ const VehicleDetails = () => {
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-600">Daily rate</span>
-                    <span className="font-medium">{formatPrice(vehicle.rentCharges, countryConfig?.currencyCode || 'USD')}</span>
+                    <span className="font-medium">{formatPrice(vehicle.rentCharges, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
                   </div>
                   {pickupDate && returnDate && (
                     <>
@@ -624,12 +628,12 @@ const VehicleDetails = () => {
                       </div>
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-600">Service fee</span>
-                        <span className="font-medium">{formatPrice(25, countryConfig?.currencyCode || 'USD')}</span>
+                        <span className="font-medium">{formatPrice(25, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
                       </div>
                       <Separator />
                       <div className="flex justify-between text-sm font-semibold">
                         <span>Total</span>
-                        <span className="text-blue-600">{formatPrice(calculateTotal() + 25, countryConfig?.currencyCode || 'USD')}</span>
+                        <span className="text-blue-600">{formatPrice(calculateTotal() + 25, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
                       </div>
                     </>
                   )}
