@@ -121,6 +121,7 @@ const Index = () => {
                   rating={vehicleData.rating}
                   unavailableDates={vehicleData.unavailableDates}
                   blockedDates={vehicleData.blockedDates}
+                  currencyCode={vehicleData.currencyCode}
                 />
               ))}
             </div>

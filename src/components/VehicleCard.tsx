@@ -11,23 +11,53 @@ import { formatPrice } from '@/lib/utils';
 
 interface Vehicle {
   vehicleId: number;
+  isavailable: boolean;
+  companyId: number | null;
+  memberId: number | null;
   make: string;
-  model: string;
   rentCharges: number;
+  model: string;
   manufactureMonthYear: string;
   extColor: string;
   intColor: string;
   rego: string;
+  regoExpiry: string;
+  linkT: string | null;
   odometer: number;
-  isRented: boolean;
+  seatingCapacity: number | null;
+  transmissionType: string | null;
+  airConditioning: boolean | null;
+  additionalFeatures: string | null;
   images: string;
+  isRented: boolean;
+  isArchived: boolean;
+  archiveReason: string | null;
+  archiveComments: string | null;
   resourcePath: string;
+  owner: number;
+  fuelUnit: number;
+  comments: string;
   registeredCity: string;
   registeredCountry: string;
-  pickupLocation: string;
-  dropoffLocation: string;
-  paymentMethod: string;
-  comments: string;
+  excessKm: number | null;
+  kmAllowed: number | null;
+  additionalConditions: string | null;
+  pickupLocation: string | null;
+  dropoffLocation: string | null;
+  paymentMethod: string | null;
+  cancellationPolicyId: number | null;
+  minRentPeriod: number | null;
+  isRentalListingApproved: boolean;
+  rentalListingStatus: string;
+  rentalListingRemarks: string;
+  rentalListingDate: string;
+  rentalListingReviewedBy: string;
+  rentalListingRejectionReason: string | null;
+  createdAt: string;
+  createdByUserId: number | null;
+  lastModifiedDate: string;
+  lastModifiedByUserId: number;
+  isActive: boolean;
 }
 
 interface Rating {
@@ -40,18 +70,19 @@ interface VehicleCardProps {
   rating: Rating | null;
   unavailableDates: string[];
   blockedDates: Array<{ startDate: string; endDate: string }>;
+  currencyCode: string | null;
 }
 
-export default function VehicleCard({ vehicle, rating, unavailableDates, blockedDates }: VehicleCardProps) {
+export default function VehicleCard({ vehicle, rating, unavailableDates, blockedDates, currencyCode }: VehicleCardProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0])); // Track loaded images
   const navigate = useNavigate();
-  const { isAuthenticated, customer, countryConfig } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const formatVehiclePrice = (price: number) => {
-    return formatPrice(price, countryConfig?.currencyCode || 'USD');
+    return formatPrice(price, currencyCode || 'USD');
   };
 
   const getYear = (dateString: string) => {
