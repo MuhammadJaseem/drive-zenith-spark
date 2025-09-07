@@ -18,9 +18,11 @@ interface SearchFiltersProps {
   onFiltersChange: (filters: VehicleFilters) => void;
   isLoading?: boolean;
   currencyCode?: string;
+  staticMakes?: any[];
+  staticModels?: any[];
 }
 
-export default function SearchFilters({ onFiltersChange, isLoading, currencyCode }: SearchFiltersProps) {
+export default function SearchFilters({ onFiltersChange, isLoading, currencyCode, staticMakes, staticModels }: SearchFiltersProps) {
   const [filters, setFilters] = useState<VehicleFilters>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [makes, setMakes] = useState<any[]>([]);
@@ -60,47 +62,58 @@ export default function SearchFilters({ onFiltersChange, isLoading, currencyCode
     onFiltersChange(newFilters);
   };
 
-  // Fetch makes on component mount
+  // Fetch makes on component mount or use static
   useEffect(() => {
-    const fetchMakes = async () => {
-      setMakesLoading(true);
-      try {
-        const response = await axios.get('https://zfleetdev.azurewebsites.net/api/makemodel/makes');
-        setMakes(response.data || []);
-      } catch (error) {
-        console.error('Failed to fetch makes:', error);
-      } finally {
-        setMakesLoading(false);
-      }
-    };
+    if (staticMakes) {
+      setMakes(staticMakes);
+      setMakesLoading(false);
+    } else {
+      const fetchMakes = async () => {
+        setMakesLoading(true);
+        try {
+          const response = await axios.get('https://zfleetdev.azurewebsites.net/api/makemodel/makes');
+          setMakes(response.data || []);
+        } catch (error) {
+          console.error('Failed to fetch makes:', error);
+        } finally {
+          setMakesLoading(false);
+        }
+      };
 
-    fetchMakes();
-  }, []);
+      fetchMakes();
+    }
+  }, [staticMakes]);
 
-  // Fetch models when make is selected
+  // Fetch models when make is selected or use static
   useEffect(() => {
-    const fetchModels = async () => {
-      if (!filters.make) {
-        setModels([]);
-        return;
-      }
+    if (staticModels && filters.make) {
+      const filteredModels = staticModels.filter(model => model.make === filters.make);
+      setModels(filteredModels);
+      setModelsLoading(false);
+    } else if (!staticModels) {
+      const fetchModels = async () => {
+        if (!filters.make) {
+          setModels([]);
+          return;
+        }
 
-      setModelsLoading(true);
-      try {
-        const response = await axios.get(
-          `https://zfleetdev.azurewebsites.net/api/makemodel/makes/models?VehicleMake=${filters.make}`
-        );
-        setModels(response.data || []);
-      } catch (error) {
-        console.error('Failed to fetch models:', error);
-        setModels([]);
-      } finally {
-        setModelsLoading(false);
-      }
-    };
+        setModelsLoading(true);
+        try {
+          const response = await axios.get(
+            `https://zfleetdev.azurewebsites.net/api/makemodel/makes/models?VehicleMake=${filters.make}`
+          );
+          setModels(response.data || []);
+        } catch (error) {
+          console.error('Failed to fetch models:', error);
+          setModels([]);
+        } finally {
+          setModelsLoading(false);
+        }
+      };
 
-    fetchModels();
-  }, [filters.make]);
+      fetchModels();
+    }
+  }, [filters.make, staticModels]);
 
   const handleMakeChange = (makeName: string) => {
     const newFilters = { ...filters, make: makeName, model: undefined }; // Clear model when make changes

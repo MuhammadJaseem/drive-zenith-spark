@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import PrivateRoute from "@/components/PrivateRoute";
 import Index from "./pages/Index";
+import StaticIndex from "./pages/StaticIndex";
 import SignIn from "./pages/SignIn";
 import NotFound from "./pages/NotFound";
 import VehicleDetails from "./pages/VehicleDetails";
@@ -21,7 +22,8 @@ const App = () => (
           <Sonner />
           <Routes>
             <Route path="/signin" element={<SignIn />} />
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<StaticIndex />} />
+            <Route path="/dynamic" element={<Index />} />
             <Route
               path="/vehicle/:vehicleId"
               element={
