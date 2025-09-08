@@ -382,7 +382,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
-    "vehicleimage": "",
+    "vehicleimage": "/TOYOTA Corolla Altis.png",
     "car": "TOYOTA HIACE",
     "seats": 12,
     "transmission": "Manual",
