@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ interface StaticVehicleCardProps {
 
 export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   // Generate unique placeholder based on vehicle data
   const generatePlaceholderGradient = () => {
@@ -47,6 +49,25 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
     return colors[index];
   };
 
+  // Create URL slug from vehicle name
+  const createVehicleSlug = (carName: string) => {
+    return carName.toLowerCase()
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/[^a-z0-9-]/g, '') // Remove special characters
+      .replace(/-+/g, '-') // Replace multiple hyphens with single
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  };
+
+  const handleImageClick = () => {
+    const slug = createVehicleSlug(vehicle.car);
+    navigate(`/rent-a-${slug}`, {
+      state: {
+        vehicle,
+        currencyCode: 'PKR'
+      }
+    });
+  };
+
   const handleViewDetails = () => {
     setShowModal(true);
   };
@@ -58,51 +79,56 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
         whileTap={{ scale: 0.99 }}
         transition={{ duration: 0.15, ease: "easeOut" }}
       >
-        <Card className="overflow-hidden group cursor-pointer shadow-none hover:shadow-[0_4px_12px_-2px_rgba(var(--primary),0.15)] transition-all duration-200 border-2 border-transparent hover:border-accent/30 focus-within:border-accent/30">
+        <Card className="overflow-hidden group shadow-none hover:shadow-[0_4px_12px_-2px_rgba(var(--primary),0.15)] transition-all duration-200 border-2 border-transparent hover:border-accent/30 focus-within:border-accent/30">
           <div className="relative">
             {/* Vehicle Image or Placeholder */}
-            {vehicle.vehicleimage ? (
-              <div className="w-full h-48 relative overflow-hidden">
-                <img
-                  src={vehicle.vehicleimage}
-                  alt={vehicle.car}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback to placeholder if image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = `
-                        <div class="w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative">
-                          <div class="absolute inset-0 bg-black/10"></div>
-                          <div class="text-center text-white z-10">
-                            <div class="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                              <span class="text-2xl font-bold">
-                                ${vehicle.car.split(' ')[0].charAt(0)}${vehicle.car.split(' ')[1]?.charAt(0) || ''}
-                              </span>
+            <div
+              className="cursor-pointer"
+              onClick={handleImageClick}
+            >
+              {vehicle.vehicleimage ? (
+                <div className="w-full h-48 relative overflow-hidden">
+                  <img
+                    src={vehicle.vehicleimage}
+                    alt={vehicle.car}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative">
+                            <div class="absolute inset-0 bg-black/10"></div>
+                            <div class="text-center text-white z-10">
+                              <div class="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <span class="text-2xl font-bold">
+                                  ${vehicle.car.split(' ')[0].charAt(0)}${vehicle.car.split(' ')[1]?.charAt(0) || ''}
+                                </span>
+                              </div>
+                              <p class="text-base font-semibold">${vehicle.car}</p>
                             </div>
-                            <p class="text-base font-semibold">${vehicle.car}</p>
                           </div>
-                        </div>
-                      `;
-                    }
-                  }}
-                />
-              </div>
-            ) : (
-              <div className={`w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative`}>
-                <div className="absolute inset-0 bg-black/10"></div>
-                <div className="text-center text-white z-10">
-                  <div className="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <span className="text-2xl font-bold">
-                      {vehicle.car.split(' ')[0].charAt(0)}{vehicle.car.split(' ')[1]?.charAt(0) || ''}
-                    </span>
-                  </div>
-                  <p className="text-base font-semibold">{vehicle.car}</p>
+                        `;
+                      }
+                    }}
+                  />
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className={`w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative hover:scale-105 transition-transform duration-300`}>
+                  <div className="absolute inset-0 bg-black/10"></div>
+                  <div className="text-center text-white z-10">
+                    <div className="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                      <span className="text-2xl font-bold">
+                        {vehicle.car.split(' ')[0].charAt(0)}{vehicle.car.split(' ')[1]?.charAt(0) || ''}
+                      </span>
+                    </div>
+                    <p className="text-base font-semibold">{vehicle.car}</p>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Best Price Badge */}
             {vehicle.price.old && vehicle.price.new && vehicle.price.old > vehicle.price.new && (
@@ -213,7 +239,7 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
               )}
             </div>
             <button 
-              className="text-sm text-accent hover:text-accent/80 underline text-center"
+              className="text-sm text-accent hover:text-accent/80 underline text-center cursor-pointer"
               onClick={handleViewDetails}
             >
               View Full Details

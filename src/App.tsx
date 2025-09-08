@@ -10,6 +10,7 @@ import StaticIndex from "./pages/StaticIndex";
 import SignIn from "./pages/SignIn";
 import NotFound from "./pages/NotFound";
 import VehicleDetails from "./pages/VehicleDetails";
+import StaticVehicleDetails from "./pages/StaticVehicleDetails";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
                 </PrivateRoute>
               }
             />
+            <Route path="/rent-a-:vehicleSlug" element={<StaticVehicleDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
