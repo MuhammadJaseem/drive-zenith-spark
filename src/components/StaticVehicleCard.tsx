@@ -60,12 +60,20 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
 
   const handleImageClick = () => {
     const slug = createVehicleSlug(vehicle.car);
-    navigate(`/rent-a-${slug}`, {
-      state: {
-        vehicle,
-        currencyCode: 'PKR'
-      }
-    });
+    console.log('Vehicle name:', vehicle.car);
+    console.log('Generated slug:', slug);
+    console.log('Navigation path:', `/rent-a-${slug}`);
+    
+    // Store vehicle data in localStorage for URL rewriting
+    const dataToStore = {
+      vehicle,
+      currencyCode: 'PKR',
+      timestamp: Date.now()
+    };
+    localStorage.setItem('staticVehicleData', JSON.stringify(dataToStore));
+    
+    // Use URL rewriting with slug
+    navigate(`/rent-a-${slug}`);
   };
 
   const handleViewDetails = () => {

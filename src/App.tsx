@@ -34,6 +34,9 @@ const App = () => (
               }
             />
             <Route path="/rent-a-:vehicleSlug" element={<StaticVehicleDetails />} />
+            <Route path="/rent/:vehicleSlug" element={<StaticVehicleDetails />} />
+            <Route path="/vehicle-details" element={<StaticVehicleDetails />} />
+            <Route path="/:vehicleSlug" element={<StaticVehicleDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

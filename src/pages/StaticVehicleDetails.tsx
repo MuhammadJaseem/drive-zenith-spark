@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,11 +61,48 @@ interface StaticVehicle {
 }
 
 const StaticVehicleDetails = () => {
-  const { vehicleSlug } = useParams<{ vehicleSlug: string }>();
+  const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const vehicle = location.state?.vehicle as StaticVehicle;
-  const currencyCode = location.state?.currencyCode || 'PKR';
+  
+  // Extract slug from wildcard route
+  const slug = params['*'] || '';
+  
+  console.log('StaticVehicleDetails loaded!');
+  console.log('Route params:', params);
+  console.log('Extracted slug:', slug);
+  console.log('Location state:', location.state);
+  
+  // Try to get vehicle data from navigation state first, then from localStorage
+  let vehicle = location.state?.vehicle as StaticVehicle;
+  let currencyCode = location.state?.currencyCode || 'PKR';
+  
+  console.log('Vehicle from state:', vehicle);
+  
+  // If no vehicle data in state, try to get from localStorage
+  if (!vehicle) {
+    try {
+      const storedData = localStorage.getItem('staticVehicleData');
+      console.log('Stored data from localStorage:', storedData);
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        console.log('Parsed data:', parsedData);
+        // Check if data is not too old (24 hours)
+        if (Date.now() - parsedData.timestamp < 24 * 60 * 60 * 1000) {
+          vehicle = parsedData.vehicle;
+          currencyCode = parsedData.currencyCode;
+          console.log('Vehicle loaded from localStorage:', vehicle);
+        } else {
+          // Clear old data
+          localStorage.removeItem('staticVehicleData');
+          console.log('Old data cleared from localStorage');
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing stored vehicle data:', error);
+      localStorage.removeItem('staticVehicleData');
+    }
+  }
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [pickupDate, setPickupDate] = useState<Date | undefined>(new Date());
@@ -102,6 +139,7 @@ const StaticVehicleDetails = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-3">Vehicle not found</h2>
+          <p className="text-gray-600 mb-4">The vehicle details could not be loaded. Please try again.</p>
           <Button onClick={() => navigate('/')} variant="outline" size="sm">
             <ArrowLeft className="mr-1 h-3 w-3" />
             Back to search
@@ -110,6 +148,13 @@ const StaticVehicleDetails = () => {
       </div>
     );
   }
+
+  // Clean up stored data after successful load
+  useEffect(() => {
+    if (vehicle) {
+      localStorage.removeItem('staticVehicleData');
+    }
+  }, [vehicle]);
 
   const images = getImageArray(vehicle.vehicleimage);
 
