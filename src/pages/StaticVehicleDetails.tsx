@@ -65,8 +65,8 @@ const StaticVehicleDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Extract slug from wildcard route
-  const slug = params['*'] || '';
+  // Extract slug from route parameters
+  const slug = params.vehicleSlug || '';
   
   console.log('StaticVehicleDetails loaded!');
   console.log('Route params:', params);
@@ -102,6 +102,31 @@ const StaticVehicleDetails = () => {
       console.error('Error parsing stored vehicle data:', error);
       localStorage.removeItem('staticVehicleData');
     }
+  }
+
+  // If still no vehicle data, create a fallback demo vehicle based on the slug
+  if (!vehicle && slug) {
+    const vehicleName = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    vehicle = {
+      vehicleimage: 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center',
+      car: vehicleName,
+      seats: 5,
+      transmission: 'Automatic',
+      with_driver: 'Available',
+      self_drive: 'Available',
+      overtime: '$10/hour',
+      fuel_policy: 'Full to Full',
+      note: 'Demo vehicle for URL testing',
+      price: { old: 120, new: 100, unit: 'day' },
+      free_cancellation: true,
+      services: {
+        fuel_cost: 'Included',
+        base_fare: '$100/day',
+        latenight_offer: 'Available',
+        overtime: '$10/hour'
+      }
+    };
+    console.log('Created fallback vehicle:', vehicle);
   }
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -153,6 +178,55 @@ const StaticVehicleDetails = () => {
   useEffect(() => {
     if (vehicle) {
       localStorage.removeItem('staticVehicleData');
+      
+      // Update page title for SEO
+      document.title = `Rent ${vehicle.car} - Fleetmate Rental | Car Rental Services`;
+      
+      // Update meta description for SEO
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', 
+          `Rent ${vehicle.car} from $${vehicle.price.new}/day. ${vehicle.seats} seats, ${vehicle.transmission} transmission. Free cancellation available. Book now!`
+        );
+      } else {
+        // Create meta description if it doesn't exist
+        const meta = document.createElement('meta');
+        meta.name = 'description';
+        meta.content = `Rent ${vehicle.car} from $${vehicle.price.new}/day. ${vehicle.seats} seats, ${vehicle.transmission} transmission. Free cancellation available. Book now!`;
+        document.head.appendChild(meta);
+      }
+      
+      // Add structured data for SEO
+      const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": vehicle.car,
+        "description": `Rent ${vehicle.car} - ${vehicle.seats} seats, ${vehicle.transmission} transmission`,
+        "image": vehicle.vehicleimage,
+        "offers": {
+          "@type": "Offer",
+          "price": vehicle.price.new,
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock",
+          "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        },
+        "brand": {
+          "@type": "Brand",
+          "name": vehicle.car.split(' ')[0]
+        }
+      };
+      
+      // Remove existing structured data
+      const existingScript = document.querySelector('script[type="application/ld+json"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      
+      // Add new structured data
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(script);
     }
   }, [vehicle]);
 
