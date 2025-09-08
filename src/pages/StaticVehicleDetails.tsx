@@ -87,8 +87,8 @@ const StaticVehicleDetails = () => {
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         console.log('Parsed data:', parsedData);
-        // Check if data is not too old (24 hours)
-        if (Date.now() - parsedData.timestamp < 24 * 60 * 60 * 1000) {
+        // Check if data is not too old (7 days instead of 24 hours)
+        if (Date.now() - parsedData.timestamp < 7 * 24 * 60 * 60 * 1000) {
           vehicle = parsedData.vehicle;
           currencyCode = parsedData.currencyCode;
           console.log('Vehicle loaded from localStorage:', vehicle);
@@ -107,25 +107,80 @@ const StaticVehicleDetails = () => {
   // If still no vehicle data, create a fallback demo vehicle based on the slug
   if (!vehicle && slug) {
     const vehicleName = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    vehicle = {
-      vehicleimage: 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center',
-      car: vehicleName,
-      seats: 5,
-      transmission: 'Automatic',
-      with_driver: 'Available',
-      self_drive: 'Available',
-      overtime: '$10/hour',
-      fuel_policy: 'Full to Full',
-      note: 'Demo vehicle for URL testing',
-      price: { old: 120, new: 100, unit: 'day' },
-      free_cancellation: true,
-      services: {
-        fuel_cost: 'Included',
-        base_fare: '$100/day',
-        latenight_offer: 'Available',
-        overtime: '$10/hour'
+    
+    // Create more realistic data based on vehicle type
+    const getVehicleData = (name: string) => {
+      const lowerName = name.toLowerCase();
+      
+      // Honda Civic specific data
+      if (lowerName.includes('honda') && lowerName.includes('civic')) {
+        return {
+          vehicleimage: '/honda-civic-pictures-2048-x-1360-mvzdip8is18i4iyo.jpg',
+          car: 'Honda Civic',
+          seats: 4,
+          transmission: 'Automatic',
+          with_driver: '10hrs/day',
+          self_drive: '24hrs',
+          overtime: 'PKR 350/hr',
+          fuel_policy: 'Refill fuel at the end of the day or pay PKR 40/KM',
+          note: 'Premium sedan with excellent fuel efficiency',
+          price: { old: null, new: 7000, unit: 'day' },
+          free_cancellation: true,
+          services: {
+            fuel_cost: 'PKR 40/km',
+            base_fare: 'PKR 7K/day',
+            latenight_offer: 'PKR 300',
+            overtime: 'PKR 350/hr'
+          }
+        };
       }
+      
+      // Toyota Corolla specific data
+      if (lowerName.includes('toyota') && lowerName.includes('corolla')) {
+        return {
+          vehicleimage: '/TOYOTA Corolla Altis.png',
+          car: 'TOYOTA Corolla Altis',
+          seats: 5,
+          transmission: 'Automatic',
+          with_driver: 'Available',
+          self_drive: 'Available',
+          overtime: '$10/hour',
+          fuel_policy: 'Full to Full',
+          note: 'Reliable and comfortable family sedan',
+          price: { old: null, new: 100, unit: 'day' },
+          free_cancellation: true,
+          services: {
+            fuel_cost: 'Included',
+            base_fare: '$100/day',
+            latenight_offer: 'Available',
+            overtime: '$10/hour'
+          }
+        };
+      }
+      
+      // Default fallback for other vehicles
+      return {
+        vehicleimage: 'https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&h=600&fit=crop&crop=center',
+        car: vehicleName,
+        seats: 5,
+        transmission: 'Automatic',
+        with_driver: 'Available',
+        self_drive: 'Available',
+        overtime: '$10/hour',
+        fuel_policy: 'Full to Full',
+        note: `Experience the comfort and reliability of ${vehicleName}`,
+        price: { old: null, new: 85, unit: 'day' },
+        free_cancellation: true,
+        services: {
+          fuel_cost: 'Included',
+          base_fare: '$85/day',
+          latenight_offer: 'Available',
+          overtime: '$10/hour'
+        }
+      };
     };
+    
+    vehicle = getVehicleData(vehicleName);
     console.log('Created fallback vehicle:', vehicle);
   }
 
@@ -174,11 +229,14 @@ const StaticVehicleDetails = () => {
     );
   }
 
-  // Clean up stored data after successful load
+  // Clean up stored data after successful load (only for real data, not fallback)
   useEffect(() => {
-    if (vehicle) {
+    if (vehicle && location.state?.vehicle) {
+      // Only remove localStorage if we got real data from navigation state
       localStorage.removeItem('staticVehicleData');
-      
+    }
+    
+    if (vehicle) {
       // Update page title for SEO
       document.title = `Rent ${vehicle.car} - Fleetmate Rental | Car Rental Services`;
       
@@ -228,7 +286,7 @@ const StaticVehicleDetails = () => {
       script.textContent = JSON.stringify(structuredData);
       document.head.appendChild(script);
     }
-  }, [vehicle]);
+  }, [vehicle, location.state]);
 
   const images = getImageArray(vehicle.vehicleimage);
 
