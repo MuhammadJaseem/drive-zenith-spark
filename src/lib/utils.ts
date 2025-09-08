@@ -16,15 +16,8 @@ export function formatPrice(price: number, currencyCode: string = 'USD') {
   // Handle very long currency codes
   const displayCode = currencyCode && currencyCode.length > 4 ? currencyCode.substring(0, 3) : (currencyCode || 'USD');
 
-  // Format large prices with K suffix for better UX
-  let displayPrice: string;
-  if (price >= 1000) {
-    const kValue = (price / 1000).toFixed(1);
-    // Remove .0 if it's a whole number
-    displayPrice = kValue.endsWith('.0') ? kValue.slice(0, -2) + 'K' : kValue + 'K';
-  } else {
-    displayPrice = price.toLocaleString();
-  }
+  // Always show full price without abbreviation
+  const displayPrice = price.toLocaleString();
 
   const result = `${displayCode} ${displayPrice}`;
   console.log('formatPrice result:', result);

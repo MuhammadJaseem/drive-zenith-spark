@@ -311,9 +311,7 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
 
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
         <div className="flex-1 min-w-0">
-          <div className={`font-bold text-foreground truncate ${
-            formatVehiclePrice(vehicle.rentCharges).length > 12 ? 'text-xl' : 'text-2xl'
-          }`}>
+          <div className="font-bold text-foreground text-xl truncate">
             {formatVehiclePrice(vehicle.rentCharges)}
           </div>
           <div className="text-xs text-muted-foreground">per day</div>

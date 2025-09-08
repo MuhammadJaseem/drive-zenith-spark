@@ -157,7 +157,7 @@ const VehicleDetails = () => {
                     <MapPin className="h-3 w-3 mr-1" />
                     {vehicle.registeredCity}
                   </div>
-                  <div className="text-lg font-bold text-blue-600">
+                  <div className="text-lg font-bold text-blue-600 truncate">
                     {formatPrice(vehicle.rentCharges, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}/day
                   </div>
                 </div>
@@ -618,7 +618,7 @@ const VehicleDetails = () => {
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-600">Daily rate</span>
-                    <span className="font-medium">{formatPrice(vehicle.rentCharges, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
+                    <span className="font-medium truncate">{formatPrice(vehicle.rentCharges, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
                   </div>
                   {pickupDate && returnDate && (
                     <>
@@ -628,12 +628,12 @@ const VehicleDetails = () => {
                       </div>
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-600">Service fee</span>
-                        <span className="font-medium">{formatPrice(25, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
+                        <span className="font-medium truncate">{formatPrice(25, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
                       </div>
                       <Separator />
                       <div className="flex justify-between text-sm font-semibold">
                         <span>Total</span>
-                        <span className="text-blue-600">{formatPrice(calculateTotal() + 25, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
+                        <span className="text-blue-600 truncate">{formatPrice(calculateTotal() + 25, passedCurrencyCode || countryConfig?.currencyCode || 'USD')}</span>
                       </div>
                     </>
                   )}
