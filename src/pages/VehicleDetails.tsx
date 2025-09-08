@@ -509,7 +509,7 @@ const VehicleDetails = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-9 h-9 p-0 border-gray-300 hover:bg-gray-50"
+                    className="w-9 h-9 p-0 border-gray-300 hover:bg-gray-50 hidden"
                     onClick={() => {
                       if (customer?.mobile) {
                         window.open(`tel:${customer.mobile}`, '_self');
