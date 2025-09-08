@@ -84,10 +84,10 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
         transition={{ duration: 0.15, ease: "easeOut" }}
         className="w-full max-w-lg mx-auto"
       >
-        <Card className="overflow-hidden group shadow-sm hover:shadow-lg transition-all duration-200 border-2 border-purple-600 bg-white rounded-lg relative">
+        <Card className="overflow-hidden group shadow-sm hover:shadow-lg transition-all duration-200 border-2 border-accent bg-white rounded-lg relative">
           {/* Best Price Badge */}
           <div className="absolute top-3 right-3 z-10">
-            <div className="bg-purple-600 text-white text-xs font-semibold px-2.5 py-1 rounded-sm">
+            <div className="bg-accent text-accent-foreground text-xs font-semibold px-2.5 py-1 rounded-sm">
               BEST PRICE RATE SELECTED!
             </div>
           </div>
@@ -186,7 +186,7 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
                     {vehicle.price.old.toLocaleString()}
                   </div>
                 )}
-                <div className="text-2xl font-bold text-purple-600">
+                <div className="text-2xl font-bold text-accent">
                   {vehicle.price.new ? vehicle.price.new.toLocaleString() : '8,500'}
                 </div>
                 <div className="text-sm text-gray-600">PKR/day</div>
@@ -209,9 +209,9 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
               
               {/* Right Column - Free Cancellation */}
               <div className="text-right ml-4">
-                <div className="text-purple-600 font-bold text-sm mb-1">FREE CANCELLATION</div>
+                <div className="text-accent font-bold text-sm mb-1">FREE CANCELLATION</div>
                 <div className="flex items-baseline gap-2 justify-end">
-                  <span className="text-2xl font-bold text-purple-600">
+                  <span className="text-2xl font-bold text-accent">
                     {vehicle.price.new ? vehicle.price.new.toLocaleString() : '8,500'}
                   </span>
                   <span className="text-sm text-gray-600">PKR/day</span>
@@ -225,7 +225,7 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
               <div className="grid grid-cols-2 gap-3">
                 {/* Main Action Button */}
                 <Button
-                  className="h-11 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm rounded-md"
+                  className="h-11 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-sm rounded-md"
                   onClick={handleWithDriver}
                 >
                   With Driver
@@ -234,7 +234,7 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
                 {/* Secondary Action Button */}
                 <Button
                   variant="outline"
-                  className="h-11 border-2 border-purple-600 text-purple-600 hover:bg-purple-50 font-semibold text-sm rounded-md"
+                  className="h-11 border-2 border-accent text-accent hover:bg-accent/10 font-semibold text-sm rounded-md"
                   onClick={handleSelfDrive}
                 >
                   Self Drive
@@ -244,7 +244,7 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
               {/* View Details Link */}
               <div className="text-center">
                 <button 
-                  className="text-sm text-purple-600 hover:text-purple-700 underline cursor-pointer font-medium"
+                  className="text-sm text-accent hover:text-accent/80 underline cursor-pointer font-medium"
                   onClick={handleViewDetails}
                 >
                   View Detail
