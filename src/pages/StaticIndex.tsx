@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { VehicleFilters } from '@/hooks/useVehicles';
 
 interface StaticVehicle {
+  vehicleimage: string;
   car: string;
   seats: number;
   transmission: string;
@@ -29,6 +30,8 @@ interface StaticVehicle {
 
 const staticVehicles: StaticVehicle[] = [
   {
+    "vehicleimage": "/TOYOTA Corolla Altis.png",
+
     "car": "HONDA Civic",
     "seats": 4,
     "transmission": "Automatic",
@@ -47,6 +50,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA Corolla Altis",
     "seats": 4,
     "transmission": "Automatic",
@@ -65,6 +69,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA Corolla Gli",
     "seats": 5,
     "transmission": "Automatic",
@@ -83,6 +88,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA Yaris",
     "seats": 5,
     "transmission": "Automatic",
@@ -101,6 +107,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "AUDI A4",
     "seats": 4,
     "transmission": "Automatic",
@@ -118,6 +125,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "AUDI A5",
     "seats": 4,
     "transmission": "Automatic",
@@ -135,6 +143,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "MERCEDES CLA200",
     "seats": 4,
     "transmission": "Automatic",
@@ -152,6 +161,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "MERCEDES S Class - S400",
     "seats": 5,
     "transmission": "Automatic",
@@ -169,6 +179,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "HONDA BRV",
     "seats": 7,
     "transmission": "Automatic",
@@ -186,6 +197,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA Fortuner",
     "seats": 7,
     "transmission": "Automatic",
@@ -203,6 +215,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA Land Cruiser",
     "seats": 7,
     "transmission": "Automatic",
@@ -220,6 +233,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA Prado",
     "seats": 7,
     "transmission": "Automatic",
@@ -237,6 +251,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA Revo",
     "seats": 6,
     "transmission": "Automatic",
@@ -255,6 +270,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "KIA Sportage",
     "seats": 5,
     "transmission": "Automatic",
@@ -272,6 +288,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "HYUNDAI Tucson",
     "seats": 5,
     "transmission": "Automatic",
@@ -290,6 +307,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "SUZUKI Alto",
     "seats": 4,
     "transmission": "Automatic",
@@ -308,6 +326,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "SUZUKI Cultus",
     "seats": 4,
     "transmission": "Automatic",
@@ -326,6 +345,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "SUZUKI Wagon R",
     "seats": 4,
     "transmission": "Automatic",
@@ -344,6 +364,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA Coaster",
     "seats": 22,
     "transmission": "Manual",
@@ -361,6 +382,7 @@ const staticVehicles: StaticVehicle[] = [
     }
   },
   {
+    "vehicleimage": "",
     "car": "TOYOTA HIACE",
     "seats": 12,
     "transmission": "Manual",

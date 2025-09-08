@@ -7,6 +7,7 @@ import { Users, Settings, Clock, Fuel, CheckCircle, DollarSign, AlertTriangle, X
 import { motion } from 'framer-motion';
 
 interface StaticVehicle {
+  vehicleimage: string;
   car: string;
   seats: number;
   transmission: string;
@@ -53,24 +54,55 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
   return (
     <>
       <motion.div
-        whileHover={{ y: -4, scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.2, ease: "easeInOut" }}
+        whileHover={{ y: -2, scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
       >
-        <Card className="overflow-hidden group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/50">
+        <Card className="overflow-hidden group cursor-pointer shadow-none hover:shadow-[0_4px_12px_-2px_rgba(var(--primary),0.15)] transition-all duration-200 border-2 border-transparent hover:border-accent/30 focus-within:border-accent/30">
           <div className="relative">
-            {/* Placeholder Image */}
-            <div className={`w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative`}>
-              <div className="absolute inset-0 bg-black/10"></div>
-              <div className="text-center text-white z-10">
-                <div className="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                  <span className="text-2xl font-bold">
-                    {vehicle.car.split(' ')[0].charAt(0)}{vehicle.car.split(' ')[1]?.charAt(0) || ''}
-                  </span>
-                </div>
-                <p className="text-base font-semibold">{vehicle.car}</p>
+            {/* Vehicle Image or Placeholder */}
+            {vehicle.vehicleimage ? (
+              <div className="w-full h-48 relative overflow-hidden">
+                <img
+                  src={vehicle.vehicleimage}
+                  alt={vehicle.car}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `
+                        <div class="w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative">
+                          <div class="absolute inset-0 bg-black/10"></div>
+                          <div class="text-center text-white z-10">
+                            <div class="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                              <span class="text-2xl font-bold">
+                                ${vehicle.car.split(' ')[0].charAt(0)}${vehicle.car.split(' ')[1]?.charAt(0) || ''}
+                              </span>
+                            </div>
+                            <p class="text-base font-semibold">${vehicle.car}</p>
+                          </div>
+                        </div>
+                      `;
+                    }
+                  }}
+                />
               </div>
-            </div>
+            ) : (
+              <div className={`w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative`}>
+                <div className="absolute inset-0 bg-black/10"></div>
+                <div className="text-center text-white z-10">
+                  <div className="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <span className="text-2xl font-bold">
+                      {vehicle.car.split(' ')[0].charAt(0)}{vehicle.car.split(' ')[1]?.charAt(0) || ''}
+                    </span>
+                  </div>
+                  <p className="text-base font-semibold">{vehicle.car}</p>
+                </div>
+              </div>
+            )}
 
             {/* Best Price Badge */}
             {vehicle.price.old && vehicle.price.new && vehicle.price.old > vehicle.price.new && (
@@ -192,67 +224,79 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
 
       {/* Vehicle Details Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-lg max-h-[80vh] p-5 [&>button]:hidden">
-          <DialogHeader className="pb-3">
-            <DialogTitle className="text-xl font-bold text-foreground text-center">
-              Excluding Charges Details
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="bg-gradient-to-br from-muted/30 to-muted/10 rounded-lg p-4 border border-border/50">
-              <div className="grid grid-cols-2 gap-3 font-semibold text-sm mb-4 text-foreground">
-                <span className="flex items-center gap-2">
-                  <Settings className="w-4 h-4 text-accent" />
-                  Services
-                </span>
-                <span className="text-right flex items-center justify-end gap-2">
-                  <DollarSign className="w-4 h-4 text-accent" />
-                  Amount
-                </span>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-3 text-sm py-2 px-3 rounded-md bg-background/50 hover:bg-background/70 transition-colors">
-                  <span className="flex items-center gap-2 font-medium">
-                    <Fuel className="w-4 h-4 text-accent" />
-                    Fuel Cost
-                  </span>
-                  <span className="text-right font-semibold text-accent">{vehicle.services?.fuel_cost || "N/A"}</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 text-sm py-2 px-3 rounded-md bg-background/50 hover:bg-background/70 transition-colors">
-                  <span className="flex items-center gap-2 font-medium">
-                    <Car className="w-4 h-4 text-accent" />
-                    Base Fare
-                  </span>
-                  <span className="text-right font-semibold text-accent">{vehicle.services?.base_fare || "N/A"}</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 text-sm py-2 px-3 rounded-md bg-background/50 hover:bg-background/70 transition-colors">
-                  <span className="flex items-center gap-2 font-medium">
-                    <Clock className="w-4 h-4 text-accent" />
-                    Latenight Offer
-                  </span>
-                  <span className="text-right font-semibold text-accent">{vehicle.services?.latenight_offer || "N/A"}</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 text-sm py-2 px-3 rounded-md bg-background/50 hover:bg-background/70 transition-colors">
-                  <span className="flex items-center gap-2 font-medium">
-                    <DollarSign className="w-4 h-4 text-accent" />
-                    Overtime
-                  </span>
-                  <span className="text-right font-semibold text-accent">{vehicle.services?.overtime || "N/A"}</span>
-                </div>
-              </div>
-              
-              <div className="mt-4 pt-3 border-t border-border/50">
-                <p className="text-xs text-muted-foreground text-center">
-                  Prices may vary based on location and availability
-                </p>
+        <DialogContent className="max-w-lg max-h-[80vh] p-0 [&>button]:hidden bg-white border border-gray-300 shadow-lg">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: 30 }}
+            transition={{
+              duration: 0.4,
+              ease: [0.25, 0.46, 0.45, 0.94] // Smooth cubic-bezier easing
+            }}
+          >
+            {/* Custom Close Button */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 z-10 w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded transition-colors duration-200"
+            >
+              <X className="w-4 h-4 text-gray-600 hover:text-gray-800" />
+            </button>
+
+            <div className="p-7">
+              <DialogHeader className="pb-5">
+                <DialogTitle className="text-xl font-bold text-black text-center">
+                  Excluding Charges Details
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                <motion.div
+                  className="bg-white rounded-lg p-6 border border-gray-200"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.3 }}
+                >
+                  <div className="grid grid-cols-2 gap-4 font-semibold text-sm mb-6 text-gray-800">
+                    <span className="flex items-center gap-2">
+                      <Settings className="w-4 h-4 text-gray-600" />
+                      Services
+                    </span>
+                    <span className="text-right flex items-center justify-end gap-2">
+                      <DollarSign className="w-4 h-4 text-gray-600" />
+                      Amount
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {[
+                      { icon: Fuel, label: "Fuel Cost", value: vehicle.services?.fuel_cost },
+                      { icon: Car, label: "Base Fare", value: vehicle.services?.base_fare },
+                      { icon: Clock, label: "Latenight Offer", value: vehicle.services?.latenight_offer },
+                      { icon: DollarSign, label: "Overtime", value: vehicle.services?.overtime }
+                    ].map((service, index) => (
+                      <motion.div
+                        key={service.label}
+                        className="grid grid-cols-2 gap-4 text-sm py-4 px-5 rounded-lg bg-white border border-gray-200"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: 0.2 + index * 0.1,
+                          duration: 0.3,
+                          ease: "easeOut"
+                        }}
+                      >
+                        <span className="flex items-center gap-3 font-medium text-gray-900">
+                          <service.icon className="w-4 h-4 text-gray-600" />
+                          {service.label}
+                        </span>
+                        <span className="text-right font-semibold text-gray-900">{service.value || "N/A"}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </DialogContent>
       </Dialog>
     </>
