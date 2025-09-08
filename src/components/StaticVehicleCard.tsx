@@ -35,20 +35,6 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
-  // Generate unique placeholder based on vehicle data
-  const generatePlaceholderGradient = () => {
-    const colors = [
-      'from-blue-400 to-purple-500',
-      'from-green-400 to-blue-500',
-      'from-pink-400 to-red-500',
-      'from-yellow-400 to-orange-500',
-      'from-indigo-400 to-purple-500',
-      'from-teal-400 to-blue-500',
-    ];
-    const index = vehicle.car.length % colors.length;
-    return colors[index];
-  };
-
   // Create URL slug from vehicle name
   const createVehicleSlug = (carName: string) => {
     return carName.toLowerCase()
@@ -80,36 +66,53 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
     setShowModal(true);
   };
 
+  const handleWithDriver = () => {
+    console.log('With Driver selected for:', vehicle.car);
+    // Add your with driver logic here
+  };
+
+  const handleSelfDrive = () => {
+    console.log('Self Drive selected for:', vehicle.car);
+    // Add your self drive logic here
+  };
+
   return (
     <>
       <motion.div
         whileHover={{ y: -2, scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
         transition={{ duration: 0.15, ease: "easeOut" }}
+        className="w-full max-w-lg mx-auto"
       >
-        <Card className="overflow-hidden group shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 bg-white">
+        <Card className="overflow-hidden group shadow-sm hover:shadow-lg transition-all duration-200 border-2 border-purple-600 bg-white rounded-lg relative">
+          {/* Best Price Badge */}
+          <div className="absolute top-3 right-3 z-10">
+            <div className="bg-purple-600 text-white text-xs font-semibold px-2.5 py-1 rounded-sm">
+              BEST PRICE RATE SELECTED!
+            </div>
+          </div>
+
+          {/* Vehicle Image */}
           <div className="relative">
-            {/* Vehicle Image or Placeholder */}
             <div
               className="cursor-pointer"
               onClick={handleImageClick}
             >
               {vehicle.vehicleimage ? (
-                <div className="w-full h-44 relative overflow-hidden">
+                <div className="w-full h-48 relative overflow-hidden bg-gray-50">
                   <img
                     src={vehicle.vehicleimage}
                     alt={vehicle.car}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 p-4"
                     onError={(e) => {
-                      // Fallback to placeholder if image fails to load
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
                       const parent = target.parentElement;
                       if (parent) {
                         parent.innerHTML = `
-                          <div class="w-full h-44 bg-gray-100 flex items-center justify-center relative">
-                            <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                              <span class="text-lg font-semibold text-gray-600">
+                          <div class="w-full h-48 bg-gray-50 flex items-center justify-center">
+                            <div class="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+                              <span class="text-xl font-semibold text-gray-600">
                                 ${vehicle.car.substring(0, 2).toUpperCase()}
                               </span>
                             </div>
@@ -120,9 +123,9 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
                   />
                 </div>
               ) : (
-                <div className="w-full h-44 flex items-center justify-center bg-gray-100 relative hover:scale-105 transition-transform duration-300">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                    <span className="text-lg font-semibold text-gray-600">
+                <div className="w-full h-48 flex items-center justify-center bg-gray-50 hover:scale-105 transition-transform duration-300">
+                  <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+                    <span className="text-xl font-semibold text-gray-600">
                       {vehicle.car.substring(0, 2).toUpperCase()}
                     </span>
                   </div>
@@ -131,123 +134,124 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
             </div>
           </div>
 
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              {/* Vehicle Info */}
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-base font-semibold text-gray-900 leading-tight">
-                    {vehicle.car}
-                  </h3>
-                </div>
-                <div className="text-right">
-                  {vehicle.price.old && vehicle.price.new && vehicle.price.old > vehicle.price.new && (
-                    <div className="text-xs text-gray-400 line-through">
-                      {vehicle.price.old} PKR/day
-                    </div>
-                  )}
-                  <div className="text-lg font-bold text-purple-600">
-                    {vehicle.price.new ? `${vehicle.price.new}` : '8,500'}
-                    <span className="text-sm font-normal text-gray-500 ml-1">PKR/day</span>
+          {/* Main Content */}
+          <div className="p-4">
+            {/* Vehicle Name */}
+            <h3 className="text-lg font-bold text-gray-900 leading-tight mb-3">
+              {vehicle.car}
+            </h3>
+
+            {/* Two Column Layout - Left: Specs & Driver Options, Right: Price */}
+            <div className="flex justify-between items-start mb-4">
+              {/* Left Column - Specs and Driver Options */}
+              <div className="flex-1">
+                {/* Vehicle Specs */}
+                <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                  <div className="flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    <span>{vehicle.seats} Seats</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Settings className="w-4 h-4" />
+                    <span>{vehicle.transmission}</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Vehicle Details Row */}
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  <span>{vehicle.seats} Seats</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Settings className="w-4 h-4" />
-                  <span>{vehicle.transmission}</span>
-                </div>
-              </div>
+                {/* Driver Options */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Users className="w-4 h-4 text-gray-500" />
+                    <span>With Driver</span>
+                    <span className="ml-auto text-gray-900 font-medium">{vehicle.with_driver}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Car className="w-4 h-4 text-gray-500" />
+                    <span>Self Drive</span>
+                    <span className="ml-auto text-gray-900 font-medium">{vehicle.self_drive || '24hrs'}</span>
+                  </div>
 
-              {/* Service Options */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
                     <Clock className="w-4 h-4 text-gray-500" />
-                    <span className="text-gray-700">With Driver</span>
+                    <span>Overtime:</span>
+                    <span className="ml-auto text-gray-900 font-medium">{vehicle.overtime}</span>
                   </div>
-                  <span className="text-gray-700">{vehicle.with_driver}</span>
                 </div>
-                
-                {vehicle.self_drive && (
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-700">Self Drive</span>
-                    </div>
-                    <span className="text-gray-700">{vehicle.self_drive}</span>
+              </div>
+
+              {/* Right Column - Price Section */}
+              <div className="text-right ml-4">
+                {vehicle.price.old && vehicle.price.new && vehicle.price.old > vehicle.price.new && (
+                  <div className="text-sm text-gray-400 line-through">
+                    {vehicle.price.old.toLocaleString()}
                   </div>
                 )}
-
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    <span className="text-gray-700">Overtime:</span>
-                  </div>
-                  <span className="text-gray-700">{vehicle.overtime}</span>
+                <div className="text-2xl font-bold text-purple-600">
+                  {vehicle.price.new ? vehicle.price.new.toLocaleString() : '8,500'}
                 </div>
-              </div>
-
-              {/* Fuel Policy Note */}
-              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                Refill fuel at the end of the day or pay PKR {vehicle.fuel_policy.match(/\d+/)?.[0] || '40'}/KM
-              </div>
-
-              {/* FREE CANCELLATION */}
-              {vehicle.free_cancellation && (
-                <div className="bg-purple-50 p-3 rounded">
-                  <div className="text-purple-700 font-medium text-sm mb-1">FREE CANCELLATION</div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-purple-700">
-                      {vehicle.price.new ? `${vehicle.price.new}` : '8,500'}
-                    </span>
-                    <span className="text-sm text-purple-600">PKR/day</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Excluding charges note */}
-              <div className="text-xs text-gray-500">
-                Excluding fuel & overtime charges
+                <div className="text-sm text-gray-600">PKR/day</div>
               </div>
             </div>
-          </CardContent>
 
-          <CardFooter className="p-4 pt-0">
-            <div className="w-full space-y-3">
-              {/* Action Buttons */}
-              <div className="flex gap-2">
+            {/* Fuel Policy */}
+            <div className="text-sm text-gray-600 leading-snug mb-2">
+              Refill fuel at the end of the day or pay PKR {vehicle.fuel_policy.match(/\d+/)?.[0] || '40'}/KM
+            </div>
+
+            {/* Excluding charges note */}
+            <div className="text-sm text-gray-600 mb-4">
+              Excluding fuel & overtime charges
+            </div>
+
+            {/* Two Column Layout - Left: Empty, Right: FREE CANCELLATION */}
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1"></div>
+              
+              {/* Right Column - Free Cancellation */}
+              <div className="text-right ml-4">
+                <div className="text-purple-600 font-bold text-sm mb-1">FREE CANCELLATION</div>
+                <div className="flex items-baseline gap-2 justify-end">
+                  <span className="text-2xl font-bold text-purple-600">
+                    {vehicle.price.new ? vehicle.price.new.toLocaleString() : '8,500'}
+                  </span>
+                  <span className="text-sm text-gray-600">PKR/day</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Buttons Section */}
+            <div className="space-y-3">
+              {/* Horizontal Button Layout - Side by Side */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Main Action Button */}
                 <Button
-                  variant="accent"
-                  className="flex-1 h-10 bg-purple-600 hover:bg-purple-700 text-white font-medium text-sm"
-                  onClick={handleViewDetails}
+                  className="h-11 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm rounded-md"
+                  onClick={handleWithDriver}
                 >
                   With Driver
                 </Button>
+
+                {/* Secondary Action Button */}
                 <Button
                   variant="outline"
-                  className="flex-1 h-10 border-gray-300 text-gray-700 font-medium text-sm"
-                  onClick={handleViewDetails}
+                  className="h-11 border-2 border-purple-600 text-purple-600 hover:bg-purple-50 font-semibold text-sm rounded-md"
+                  onClick={handleSelfDrive}
                 >
                   Self Drive
                 </Button>
               </div>
 
               {/* View Details Link */}
-              <button 
-                className="text-sm text-purple-600 hover:text-purple-700 underline text-center cursor-pointer w-full"
-                onClick={handleViewDetails}
-              >
-                View Detail
-              </button>
+              <div className="text-center">
+                <button 
+                  className="text-sm text-purple-600 hover:text-purple-700 underline cursor-pointer font-medium"
+                  onClick={handleViewDetails}
+                >
+                  View Detail
+                </button>
+              </div>
             </div>
-          </CardFooter>
+          </div>
         </Card>
       </motion.div>
 

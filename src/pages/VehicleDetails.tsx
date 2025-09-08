@@ -30,8 +30,7 @@ import {
   Share2,
   Award,
   Eye,
-  X,
-  Download
+  X
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice } from '@/lib/utils';
@@ -54,7 +53,6 @@ const VehicleDetails = () => {
   const [isPickupOpen, setIsPickupOpen] = useState(false);
   const [isReturnOpen, setIsReturnOpen] = useState(false);
   const [isFeaturesModalOpen, setIsFeaturesModalOpen] = useState(false);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const { countryConfig } = useAuth();
 
   // Get rating and currencyCode from navigation state, fallback to API call for rating
@@ -66,7 +64,8 @@ const VehicleDetails = () => {
   console.log('VehicleDetails: countryConfig currencyCode:', countryConfig?.currencyCode);
 
   const handleBooking = () => {
-    setIsBookingModalOpen(true);
+    // Directly redirect to Play Store
+    window.open('https://play.google.com/store/apps/details?id=com.zeen.fms.fleetmanagement&hl=en', '_blank');
   };
 
   const calculateTotal = () => {
@@ -691,46 +690,6 @@ const VehicleDetails = () => {
           </div>
         </div>
       </div>
-
-      {/* Booking Modal */}
-      <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
-        <DialogContent className="sm:max-w-md border-0 shadow-2xl p-6">
-          <DialogHeader className="text-center pb-4 px-0">
-            <div className="mx-auto mb-4 h-16 w-16 rounded-full overflow-hidden flex items-center justify-center">
-              <img src="/logo.png" alt="FleetMate" className="h-16 w-16 object-cover" />
-            </div>
-            <DialogTitle className="text-lg font-semibold text-foreground leading-tight text-center">
-              Booking Feature Unavailable
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="px-0">
-            <DialogDescription className="text-sm text-muted-foreground text-center leading-relaxed">
-              This booking feature is currently not available on our website.
-              For the best experience, please download our mobile app.
-            </DialogDescription>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            <Button
-              variant="accent"
-              className="w-full font-medium py-3"
-              onClick={() => {
-                window.open('https://play.google.com/store/apps/details?id=com.zeen.fms.fleetmanagement&hl=en', '_blank');
-              }}
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Download from Play Store
-            </Button>
-
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground leading-relaxed text-center">
-                Get access to all features and enjoy a seamless booking experience on mobile
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
