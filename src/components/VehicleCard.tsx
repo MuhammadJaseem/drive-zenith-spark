@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Star, MapPin, Calendar, Heart, CreditCard, Gauge } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -178,7 +177,10 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
     >
-      <Card className="overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <Card 
+        className="overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-shadow duration-300"
+        onClick={handleViewDetails}
+      >
         <div className="relative">
           {/* Car Image */}
           <div className="aspect-video overflow-hidden relative bg-gray-100">
@@ -309,20 +311,13 @@ export default function VehicleCard({ vehicle, rating, unavailableDates, blocked
         </div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0 flex items-center justify-between">
-        <div className="flex-1 min-w-0">
-          <div className="font-bold text-foreground text-xl truncate">
+      <CardFooter className="p-4 pt-0 flex justify-start">
+        <div>
+          <div className="font-bold text-foreground text-xl">
             {formatVehiclePrice(vehicle.rentCharges)}
           </div>
           <div className="text-xs text-muted-foreground">per day</div>
         </div>
-        <Button
-          variant="accent"
-          className="px-6 flex-shrink-0"
-          onClick={handleViewDetails}
-        >
-          View Details
-        </Button>
       </CardFooter>
     </Card>
 
