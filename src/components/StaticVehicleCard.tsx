@@ -87,7 +87,7 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
         whileTap={{ scale: 0.99 }}
         transition={{ duration: 0.15, ease: "easeOut" }}
       >
-        <Card className="overflow-hidden group shadow-none hover:shadow-[0_4px_12px_-2px_rgba(var(--primary),0.15)] transition-all duration-200 border-2 border-transparent hover:border-accent/30 focus-within:border-accent/30">
+        <Card className="overflow-hidden group shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 bg-white">
           <div className="relative">
             {/* Vehicle Image or Placeholder */}
             <div
@@ -95,7 +95,7 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
               onClick={handleImageClick}
             >
               {vehicle.vehicleimage ? (
-                <div className="w-full h-48 relative overflow-hidden">
+                <div className="w-full h-44 relative overflow-hidden">
                   <img
                     src={vehicle.vehicleimage}
                     alt={vehicle.car}
@@ -107,15 +107,11 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
                       const parent = target.parentElement;
                       if (parent) {
                         parent.innerHTML = `
-                          <div class="w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative">
-                            <div class="absolute inset-0 bg-black/10"></div>
-                            <div class="text-center text-white z-10">
-                              <div class="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                <span class="text-2xl font-bold">
-                                  ${vehicle.car.split(' ')[0].charAt(0)}${vehicle.car.split(' ')[1]?.charAt(0) || ''}
-                                </span>
-                              </div>
-                              <p class="text-base font-semibold">${vehicle.car}</p>
+                          <div class="w-full h-44 bg-gray-100 flex items-center justify-center relative">
+                            <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                              <span class="text-lg font-semibold text-gray-600">
+                                ${vehicle.car.substring(0, 2).toUpperCase()}
+                              </span>
                             </div>
                           </div>
                         `;
@@ -124,134 +120,133 @@ export default function StaticVehicleCard({ vehicle }: StaticVehicleCardProps) {
                   />
                 </div>
               ) : (
-                <div className={`w-full h-48 bg-gradient-to-br ${generatePlaceholderGradient()} flex items-center justify-center relative hover:scale-105 transition-transform duration-300`}>
-                  <div className="absolute inset-0 bg-black/10"></div>
-                  <div className="text-center text-white z-10">
-                    <div className="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                      <span className="text-2xl font-bold">
-                        {vehicle.car.split(' ')[0].charAt(0)}{vehicle.car.split(' ')[1]?.charAt(0) || ''}
-                      </span>
-                    </div>
-                    <p className="text-base font-semibold">{vehicle.car}</p>
+                <div className="w-full h-44 flex items-center justify-center bg-gray-100 relative hover:scale-105 transition-transform duration-300">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                    <span className="text-lg font-semibold text-gray-600">
+                      {vehicle.car.substring(0, 2).toUpperCase()}
+                    </span>
                   </div>
                 </div>
               )}
             </div>
-
-            {/* Best Price Badge */}
-            {vehicle.price.old && vehicle.price.new && vehicle.price.old > vehicle.price.new && (
-              <div className="absolute top-3 left-3 bg-accent text-accent-foreground rounded-full px-3 py-1 shadow-md">
-                <span className="text-xs font-semibold">BEST PRICE!</span>
-              </div>
-            )}
-
-            {/* Free Cancellation Badge */}
-            {vehicle.free_cancellation && (
-              <div className="absolute top-3 right-3 bg-green-500 text-white rounded-full px-3 py-1 flex items-center gap-1 shadow-md">
-                <CheckCircle className="w-4 h-4" />
-                <span className="text-xs font-semibold">Free Cancel</span>
-              </div>
-            )}
           </div>
 
-          <CardContent className="p-6">
-            <div className="space-y-4">
+          <CardContent className="p-4">
+            <div className="space-y-3">
               {/* Vehicle Info */}
-              <div>
-                <h3 className="text-xl font-bold text-foreground leading-tight">
-                  {vehicle.car}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {vehicle.transmission} • {vehicle.seats} seats
-                </p>
-              </div>
-
-              {/* Key Details Grid */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-accent flex-shrink-0" />
-                  <div>
-                    <span className="text-muted-foreground block text-xs">With Driver</span>
-                    <span className="font-semibold text-foreground">{vehicle.with_driver}</span>
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                    {vehicle.car}
+                  </h3>
+                </div>
+                <div className="text-right">
+                  {vehicle.price.old && vehicle.price.new && vehicle.price.old > vehicle.price.new && (
+                    <div className="text-xs text-gray-400 line-through">
+                      {vehicle.price.old} PKR/day
+                    </div>
+                  )}
+                  <div className="text-lg font-bold text-purple-600">
+                    {vehicle.price.new ? `${vehicle.price.new}` : '8,500'}
+                    <span className="text-sm font-normal text-gray-500 ml-1">PKR/day</span>
                   </div>
                 </div>
+              </div>
 
-                {vehicle.self_drive && (
+              {/* Vehicle Details Row */}
+              <div className="flex items-center justify-between text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4" />
+                  <span>{vehicle.seats} Seats</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Settings className="w-4 h-4" />
+                  <span>{vehicle.transmission}</span>
+                </div>
+              </div>
+
+              {/* Service Options */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-accent flex-shrink-0" />
-                    <div>
-                      <span className="text-muted-foreground block text-xs">Self Drive</span>
-                      <span className="font-semibold text-foreground">{vehicle.self_drive}</span>
+                    <Clock className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-700">With Driver</span>
+                  </div>
+                  <span className="text-gray-700">{vehicle.with_driver}</span>
+                </div>
+                
+                {vehicle.self_drive && (
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-500" />
+                      <span className="text-gray-700">Self Drive</span>
                     </div>
+                    <span className="text-gray-700">{vehicle.self_drive}</span>
                   </div>
                 )}
 
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-accent flex-shrink-0" />
-                  <div>
-                    <span className="text-muted-foreground block text-xs">Overtime</span>
-                    <span className="font-semibold text-foreground">{vehicle.overtime}</span>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-700">Overtime:</span>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Fuel className="w-4 h-4 text-accent flex-shrink-0" />
-                  <div>
-                    <span className="text-muted-foreground block text-xs">Fuel Policy</span>
-                    <span className="font-semibold text-foreground leading-tight">Pay PKR {vehicle.fuel_policy.match(/\d+/)?.[0] || '40'}/KM</span>
-                  </div>
+                  <span className="text-gray-700">{vehicle.overtime}</span>
                 </div>
               </div>
 
-              {/* Price Section - Prominent */}
-              <div className="bg-muted/30 p-4 rounded-lg border border-border/50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    {vehicle.price.old && vehicle.price.new && vehicle.price.old !== vehicle.price.new && (
-                      <div className="text-sm text-muted-foreground line-through mb-1">
-                        {vehicle.price.old} PKR/day
-                      </div>
-                    )}
-                    <div className="text-3xl font-bold text-foreground">
-                      {vehicle.price.new ? `${vehicle.price.new}` : 'Call for Price'}
-                      {vehicle.price.new && <span className="text-base font-normal text-muted-foreground ml-1">PKR/day</span>}
-                    </div>
-                    {vehicle.price.old && vehicle.price.new && vehicle.price.old > vehicle.price.new && (
-                      <div className="text-sm text-green-600 font-medium mt-1">
-                        Save {vehicle.price.old - vehicle.price.new} PKR
-                      </div>
-                    )}
+              {/* Fuel Policy Note */}
+              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                Refill fuel at the end of the day or pay PKR {vehicle.fuel_policy.match(/\d+/)?.[0] || '40'}/KM
+              </div>
+
+              {/* FREE CANCELLATION */}
+              {vehicle.free_cancellation && (
+                <div className="bg-purple-50 p-3 rounded">
+                  <div className="text-purple-700 font-medium text-sm mb-1">FREE CANCELLATION</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-purple-700">
+                      {vehicle.price.new ? `${vehicle.price.new}` : '8,500'}
+                    </span>
+                    <span className="text-sm text-purple-600">PKR/day</span>
                   </div>
                 </div>
+              )}
+
+              {/* Excluding charges note */}
+              <div className="text-xs text-gray-500">
+                Excluding fuel & overtime charges
               </div>
             </div>
           </CardContent>
 
-          <CardFooter className="p-6 pt-4 flex flex-col gap-3">
-            <div className="w-full flex gap-3">
-              <Button
-                variant="accent"
-                className="flex-1 h-11 font-semibold"
-                onClick={handleViewDetails}
-              >
-                Book with Driver
-              </Button>
-              {vehicle.self_drive && (
+          <CardFooter className="p-4 pt-0">
+            <div className="w-full space-y-3">
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button
+                  variant="accent"
+                  className="flex-1 h-10 bg-purple-600 hover:bg-purple-700 text-white font-medium text-sm"
+                  onClick={handleViewDetails}
+                >
+                  With Driver
+                </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 h-11 font-semibold"
+                  className="flex-1 h-10 border-gray-300 text-gray-700 font-medium text-sm"
                   onClick={handleViewDetails}
                 >
                   Self Drive
                 </Button>
-              )}
+              </div>
+
+              {/* View Details Link */}
+              <button 
+                className="text-sm text-purple-600 hover:text-purple-700 underline text-center cursor-pointer w-full"
+                onClick={handleViewDetails}
+              >
+                View Detail
+              </button>
             </div>
-            <button 
-              className="text-sm text-accent hover:text-accent/80 underline text-center cursor-pointer"
-              onClick={handleViewDetails}
-            >
-              View Full Details
-            </button>
           </CardFooter>
         </Card>
       </motion.div>

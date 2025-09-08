@@ -23,8 +23,8 @@ const App = () => (
           <Sonner />
           <Routes>
             <Route path="/signin" element={<SignIn />} />
-            <Route path="/" element={<Index />} />
-            {/* <Route path="/dynamic" element={<Index />} /> */}
+            <Route path="/" element={<StaticIndex />} />
+            {/* <Route path="/" element={<Index />} /> */}
             <Route
               path="/vehicle/:vehicleId"
               element={
